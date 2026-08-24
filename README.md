@@ -4,6 +4,7 @@
 
 ![Islamic Tasbih Counter Banner](https://img.shields.io/badge/Islamic%20Tasbih-v1.0.0-1B5E20?style=for-the-badge&logo=android&logoColor=white)
 ![APK Size](https://img.shields.io/badge/APK%20Size-1.32%20MB-D4AF37?style=for-the-badge)
+![Downloads](https://img.shields.io/github/downloads/fasayyed89/Islamic-Tasbih-Counter-App/total?style=for-the-badge&color=2E7D32&logo=github)
 ![License](https://img.shields.io/badge/License-MIT-0D2137?style=for-the-badge)
 ![Jetpack Compose](https://img.shields.io/badge/UI-Jetpack%20Compose%20%7C%20M3-4285F4?style=for-the-badge&logo=jetpackcompose&logoColor=white)
 
