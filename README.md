@@ -15,6 +15,7 @@
 
 [![Download APK](https://img.shields.io/badge/📥%20Download%20APK%20(1.3%20MB)-Direct%20Download-2E7D32?style=for-the-badge&logo=android&logoColor=white)](https://github.com/fasayyed89/Islamic-Tasbih-Counter-App/releases/latest/download/IslamicTasbih.apk)
 [![Web / iOS Version](https://img.shields.io/badge/📱%20Web%20%2F%20iPhone%20Version-Live%20Demo-D4AF37?style=for-the-badge&logo=safari&logoColor=white)](https://fasayyed89.github.io/Islamic-Tasbih-Counter-App/)
+[![Live Download Stats](https://img.shields.io/badge/📊%20Live%20Download%20Stats-Dashboard-0D2137?style=for-the-badge&logo=googleanalytics&logoColor=white)](https://tooomm.github.io/github-release-stats/?username=fasayyed89&repository=Islamic-Tasbih-Counter-App)
 
 </div>
 
