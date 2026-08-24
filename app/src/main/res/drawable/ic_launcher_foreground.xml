@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- ── Center Golden Crescent Moon (Hilal) ── -->
+    <path
+        android:pathData="M56,36 C46,36 38,44 38,54 C38,64 46,72 56,72 C62,72 67.2,69 70.4,64.4 C63.2,65.6 52.8,61.2 52.8,54 C52.8,46.8 63.2,42.4 70.4,43.6 C67.2,39 62,36 56,36 Z"
+        android:fillType="evenOdd">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:startX="38"
+                android:startY="36"
+                android:endX="70"
+                android:endY="72"
+                android:type="linear">
+                <item android:offset="0.0" android:color="#FFFFE082" />
+                <item android:offset="0.5" android:color="#FFFFD54F" />
+                <item android:offset="1.0" android:color="#FFFFB300" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- ── Center Star (Najm) ── -->
+    <path
+        android:pathData="M65.5,49 L66.6,52.2 L69.8,52.4 L67.3,54.4 L68.1,57.6 L65.5,55.8 L62.9,57.6 L63.7,54.4 L61.2,52.4 L64.4,52.2 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:startX="61"
+                android:startY="49"
+                android:endX="70"
+                android:endY="58"
+                android:type="linear">
+                <item android:offset="0.0" android:color="#FFFFFFFF" />
+                <item android:offset="1.0" android:color="#FFFFD54F" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- ── Circular Tasbih Beads (Prayer Beads Ring) ── -->
+    <!-- Top & Diagonal Beads -->
+    <path android:pathData="M54,23 A2.6,2.6 0 1,0 54,28.2 A2.6,2.6 0 1,0 54,23 Z" android:fillColor="#FFFFD54F" />
+    <path android:pathData="M61.5,24.2 A2.6,2.6 0 1,0 61.5,29.4 A2.6,2.6 0 1,0 61.5,24.2 Z" android:fillColor="#FFFFCA28" />
+    <path android:pathData="M68.5,27.5 A2.6,2.6 0 1,0 68.5,32.7 A2.6,2.6 0 1,0 68.5,27.5 Z" android:fillColor="#FFFFD54F" />
+    <path android:pathData="M74.5,32.5 A2.6,2.6 0 1,0 74.5,37.7 A2.6,2.6 0 1,0 74.5,32.5 Z" android:fillColor="#FFFFCA28" />
+    <path android:pathData="M78.8,38.8 A2.6,2.6 0 1,0 78.8,44 A2.6,2.6 0 1,0 78.8,38.8 Z" android:fillColor="#FFFFD54F" />
+    <path android:pathData="M81.2,46.2 A2.6,2.6 0 1,0 81.2,51.4 A2.6,2.6 0 1,0 81.2,46.2 Z" android:fillColor="#FFFFCA28" />
+    <path android:pathData="M81.5,54 A2.6,2.6 0 1,0 81.5,59.2 A2.6,2.6 0 1,0 81.5,54 Z" android:fillColor="#FFFFD54F" />
+    <path android:pathData="M79.5,61.8 A2.6,2.6 0 1,0 79.5,67 A2.6,2.6 0 1,0 79.5,61.8 Z" android:fillColor="#FFFFCA28" />
+    <path android:pathData="M75.2,68.8 A2.6,2.6 0 1,0 75.2,74 A2.6,2.6 0 1,0 75.2,68.8 Z" android:fillColor="#FFFFD54F" />
+    <path android:pathData="M69.5,74.5 A2.6,2.6 0 1,0 69.5,79.7 A2.6,2.6 0 1,0 69.5,74.5 Z" android:fillColor="#FFFFCA28" />
+    <path android:pathData="M62.5,78.2 A2.6,2.6 0 1,0 62.5,83.4 A2.6,2.6 0 1,0 62.5,78.2 Z" android:fillColor="#FFFFD54F" />
+
+    <!-- Left Beads -->
+    <path android:pathData="M46.5,24.2 A2.6,2.6 0 1,0 46.5,29.4 A2.6,2.6 0 1,0 46.5,24.2 Z" android:fillColor="#FFFFCA28" />
+    <path android:pathData="M39.5,27.5 A2.6,2.6 0 1,0 39.5,32.7 A2.6,2.6 0 1,0 39.5,27.5 Z" android:fillColor="#FFFFD54F" />
+    <path android:pathData="M33.5,32.5 A2.6,2.6 0 1,0 33.5,37.7 A2.6,2.6 0 1,0 33.5,32.5 Z" android:fillColor="#FFFFCA28" />
+    <path android:pathData="M29.2,38.8 A2.6,2.6 0 1,0 29.2,44 A2.6,2.6 0 1,0 29.2,38.8 Z" android:fillColor="#FFFFD54F" />
+    <path android:pathData="M26.8,46.2 A2.6,2.6 0 1,0 26.8,51.4 A2.6,2.6 0 1,0 26.8,46.2 Z" android:fillColor="#FFFFCA28" />
+    <path android:pathData="M26.5,54 A2.6,2.6 0 1,0 26.5,59.2 A2.6,2.6 0 1,0 26.5,54 Z" android:fillColor="#FFFFD54F" />
+    <path android:pathData="M28.5,61.8 A2.6,2.6 0 1,0 28.5,67 A2.6,2.6 0 1,0 28.5,61.8 Z" android:fillColor="#FFFFCA28" />
+    <path android:pathData="M32.8,68.8 A2.6,2.6 0 1,0 32.8,74 A2.6,2.6 0 1,0 32.8,68.8 Z" android:fillColor="#FFFFD54F" />
+    <path android:pathData="M38.5,74.5 A2.6,2.6 0 1,0 38.5,79.7 A2.6,2.6 0 1,0 38.5,74.5 Z" android:fillColor="#FFFFCA28" />
+    <path android:pathData="M45.5,78.2 A2.6,2.6 0 1,0 45.5,83.4 A2.6,2.6 0 1,0 45.5,78.2 Z" android:fillColor="#FFFFD54F" />
+
+    <!-- ── Imam / Minaret Bead & Tasbih Tassel at Bottom ── -->
+    <path
+        android:pathData="M52,80 L56,80 L55,87 L53,87 Z"
+        android:fillColor="#FFFFB300" />
+    <path
+        android:pathData="M54,87 A2,2 0 1,0 54,91 A2,2 0 1,0 54,87 Z"
+        android:fillColor="#FFFFD54F" />
+    <path
+        android:pathData="M51,91 L57,91 L58.5,99 L49.5,99 Z"
+        android:fillColor="#FFFF8F00" />
+
+</vector>

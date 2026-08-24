@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Islamic Tasbih & Dhikr Counter | سبحة إلكترونية</title>
+  <meta name="description" content="A beautiful, ultra-lightweight (1.3 MB) Islamic Tasbih counter app for Android and iPhone. Zero ads, offline, 14 presets, haptics, bead sound, and celebration fireworks.">
+  <meta name="theme-color" content="#1B5E20">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Tasbih">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='48' fill='%231B5E20'/><circle cx='50' cy='50' r='38' stroke='%23D4AF37' stroke-width='4' fill='none' stroke-dasharray='6 6'/><path d='M50 25 A20 20 0 0 0 50 65 A16 16 0 0 1 50 25 Z' fill='%23D4AF37'/><polygon points='62,32 64,38 70,38 65,42 67,48 62,44 57,48 59,42 54,38 60,38' fill='%23D4AF37'/></svg>">
+  <style>
+    :root {
+      --primary: #1B5E20;
+      --primary-light: #2E7D32;
+      --primary-dark: #0f3d13;
+      --gold: #D4AF37;
+      --gold-light: #F3E5AB;
+      --bg: #F4F8F3;
+      --surface: #FFFFFF;
+      --text: #1C281F;
+      --text-muted: #5C6E61;
+      --border: #E0EADE;
+      --shadow: 0 10px 25px rgba(27, 94, 32, 0.08);
+      --shadow-lg: 0 15px 35px rgba(27, 94, 32, 0.15);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+    body { background-color: var(--bg); color: var(--text); line-height: 1.6; -webkit-font-smoothing: antialiased; }
+    
+    header { background: linear-gradient(135deg, var(--primary-dark), var(--primary)); color: white; padding: 40px 20px 30px; text-align: center; border-bottom: 3px solid var(--gold); }
+    .bismillah { font-size: 24px; font-weight: bold; color: var(--gold); margin-bottom: 8px; letter-spacing: 1px; }
+    h1 { font-size: 32px; font-weight: 800; margin-bottom: 8px; }
+    .tagline { font-size: 16px; opacity: 0.9; max-width: 600px; margin: 0 auto 20px; }
+    
+    .badges { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; margin-bottom: 24px; }
+    .badge { background: rgba(255,255,255,0.15); border: 1px solid rgba(212,175,55,0.4); padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; color: var(--gold-light); }
+
+    .cta-container { display: flex; justify-content: center; gap: 14px; flex-wrap: wrap; margin-top: 10px; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 14px 28px; font-size: 16px; font-weight: 700; border-radius: 50px; text-decoration: none; transition: transform 0.2s, box-shadow 0.2s; cursor: pointer; border: none; }
+    .btn:hover { transform: translateY(-2px); }
+    .btn-android { background: #FFFFFF; color: var(--primary); box-shadow: 0 4px 15px rgba(0,0,0,0.15); }
+    .btn-ios { background: var(--gold); color: #1C281F; box-shadow: 0 4px 15px rgba(212,175,55,0.3); }
+
+    .container { max-width: 1000px; margin: 0 auto; padding: 30px 20px; }
+
+    /* Interactive Web App Counter Card */
+    .counter-section { background: var(--surface); border-radius: 24px; padding: 30px; box-shadow: var(--shadow-lg); text-align: center; border: 1px solid var(--border); margin-bottom: 40px; }
+    .counter-title { font-size: 20px; font-weight: 700; color: var(--primary); margin-bottom: 4px; }
+    .counter-subtitle { font-size: 13px; color: var(--text-muted); margin-bottom: 20px; }
+
+    .presets-grid { display: flex; justify-content: center; gap: 6px; flex-wrap: wrap; max-width: 500px; margin: 0 auto 24px; }
+    .preset-pill { background: var(--bg); border: 1px solid var(--border); padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+    .preset-pill.active { background: var(--primary); color: white; border-color: var(--primary); transform: scale(1.05); }
+
+    .counter-circle { width: 190px; height: 190px; border-radius: 50%; border: 10px solid var(--border); margin: 0 auto 24px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; background: radial-gradient(circle, #fff, var(--bg)); }
+    .count-display { font-size: 54px; font-weight: 800; color: var(--text); line-height: 1; }
+    .target-display { font-size: 14px; color: var(--text-muted); font-weight: 600; margin-top: 4px; }
+
+    .counter-controls { display: flex; justify-content: center; align-items: center; gap: 16px; margin-bottom: 10px; }
+    .btn-count { width: 84px; height: 84px; border-radius: 50%; background: var(--primary); color: white; font-size: 36px; display: flex; align-items: center; justify-content: center; cursor: pointer; border: none; box-shadow: 0 6px 20px rgba(27,94,32,0.3); transition: transform 0.1s; }
+    .btn-count:active { transform: scale(0.92); }
+    .btn-minor { width: 50px; height: 50px; border-radius: 50%; background: var(--bg); border: 1px solid var(--border); font-size: 20px; color: var(--text); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s; }
+    .btn-minor:hover { background: #E8F0E7; }
+
+    /* Features Grid */
+    .section-heading { text-align: center; font-size: 26px; font-weight: 800; color: var(--primary-dark); margin: 40px 0 20px; }
+    .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+    .feature-card { background: var(--surface); padding: 24px; border-radius: 18px; border: 1px solid var(--border); box-shadow: var(--shadow); transition: transform 0.2s; }
+    .feature-card:hover { transform: translateY(-3px); }
+    .feature-icon { font-size: 32px; margin-bottom: 12px; }
+    .feature-title { font-size: 18px; font-weight: 700; margin-bottom: 6px; color: var(--text); }
+    .feature-desc { font-size: 14px; color: var(--text-muted); }
+
+    /* Install Guides */
+    .install-box { background: var(--surface); border-radius: 20px; padding: 28px; border: 1px solid var(--border); margin: 24px 0; }
+    .install-box h3 { color: var(--primary); font-size: 20px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+    .install-steps { margin-left: 20px; font-size: 15px; color: var(--text); }
+    .install-steps li { margin-bottom: 10px; }
+
+    /* QR Code Card */
+    .qr-card { background: linear-gradient(135deg, #1C281F, #0D2137); color: white; border-radius: 20px; padding: 30px; text-align: center; margin: 40px 0; border: 1px solid var(--gold); }
+    .qr-card h3 { color: var(--gold); font-size: 22px; margin-bottom: 8px; }
+
+    footer { text-align: center; padding: 40px 20px; color: var(--text-muted); font-size: 14px; border-top: 1px solid var(--border); }
+    footer a { color: var(--primary); text-decoration: none; font-weight: 600; }
+
+    /* Confetti Canvas */
+    #celebrationCanvas { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 9999; display: none; }
+  </style>
+</head>
+<body>
+
+  <canvas id="celebrationCanvas"></canvas>
+
+  <header>
+    <div class="bismillah">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ</div>
+    <h1>Islamic Tasbih Counter</h1>
+    <p class="tagline">A pure, ad-free, ultra-lightweight (1.3 MB) digital prayer counter designed for effortless daily Dhikr and spiritual peace.</p>
+    
+    <div class="badges">
+      <span class="badge">⚡ 1.32 MB Tiny APK</span>
+      <span class="badge">🚫 Zero Ads</span>
+      <span class="badge">📴 100% Offline</span>
+      <span class="badge">📳 Milestone Haptics</span>
+      <span class="badge">🔊 Prayer Bead Sound</span>
+      <span class="badge">🎉 Celebration Effects</span>
+    </div>
+
+    <div class="cta-container">
+      <a href="./IslamicTasbih.apk" download="IslamicTasbih.apk" class="btn btn-android">
+        <span>📥</span> Download Android APK (1.3 MB)
+      </a>
+      <a href="#webCounter" class="btn btn-ios">
+        <span>📱</span> Use Web / iPhone App
+      </a>
+    </div>
+  </header>
+
+  <div class="container">
+
+    <!-- Interactive Live Web Counter Demo -->
+    <div class="counter-section" id="webCounter">
+      <div class="counter-title">✨ Live Web & iPhone Counter</div>
+      <div class="counter-subtitle">Try it right here in your browser, or install as an iPhone Web App</div>
+
+      <!-- Presets -->
+      <div class="presets-grid">
+        <button class="preset-pill" onclick="setPreset(33, this)">33</button>
+        <button class="preset-pill" onclick="setPreset(100, this)">100</button>
+        <button class="preset-pill" onclick="setPreset(313, this)">313</button>
+        <button class="preset-pill" onclick="setPreset(1000, this)">1,000</button>
+        <button class="preset-pill" onclick="setPreset(Infinity, this)">∞</button>
+      </div>
+
+      <!-- Circle Counter -->
+      <div class="counter-circle">
+        <div class="count-display" id="countDisplay">0</div>
+        <div class="target-display" id="targetDisplay">/ 33</div>
+      </div>
+
+      <!-- Controls -->
+      <div class="counter-controls">
+        <button class="btn-minor" onclick="decrement()" title="Minus">−</button>
+        <button class="btn-count" onclick="increment()" title="Count +1">+</button>
+        <button class="btn-minor" onclick="resetCounter()" title="Reset">🔄</button>
+      </div>
+      <p style="font-size: 12px; color: var(--text-muted); margin-top: 12px;">🔊 Bead click sound & haptics enabled</p>
+    </div>
+
+    <!-- Feature Grid -->
+    <h2 class="section-heading">Why You Will Love This App</h2>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">🎯</div>
+        <div class="feature-title">14 Target Presets + Custom</div>
+        <div class="feature-desc">Quickly select 3, 5, 7, 10, 11, 33 (Fatima), 40, 70, 92, 100, 120, 313 (Badr), ∞, or enter your own custom target count.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🎆</div>
+        <div class="feature-title">On-Screen Celebrations</div>
+        <div class="feature-desc">Reaching your milestone triggers vibrant Confetti, Fireworks Crackers, or Islamic Golden Stars with Arabic congratulatory praises.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📳</div>
+        <div class="feature-title">Ultra-Strong Milestone Haptics</div>
+        <div class="feature-desc">Fires an unmistakable multi-pulse rhythm when your target is reached, so you know without ever looking at the screen.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔊</div>
+        <div class="feature-title">Wooden Prayer Bead Click</div>
+        <div class="feature-desc">Calm, organic wooden click synthesized directly via PCM audio. 0 KB asset overhead, maintaining the tiny 1.3 MB APK size.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📱</div>
+        <div class="feature-title">Full-Screen Tap Mode</div>
+        <div class="feature-desc">Tap anywhere on the entire screen to increment the count effortlessly without having to target a button.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔘</div>
+        <div class="feature-title">Hardware Volume Keys</div>
+        <div class="feature-desc">Count with the physical Volume Up and Down buttons on your phone while held in hand or inside a pocket.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📊</div>
+        <div class="feature-title">Daily Wird & History Chart</div>
+        <div class="feature-desc">Tracks today's count, lifetime total, and displays a 7-day activity bar graph to maintain daily spiritual consistency.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🕌</div>
+        <div class="feature-title">4 Islamic Themes</div>
+        <div class="feature-desc">Emerald Mosque, Desert Dusk, Midnight Blue, and Rose Garden tailored for calming, beautiful spiritual aesthetics.</div>
+      </div>
+    </div>
+
+    <!-- Installation Guides -->
+    <h2 class="section-heading">Installation Guide</h2>
+
+    <div class="install-box">
+      <h3>🤖 How to Install on Android (Direct APK)</h3>
+      <ol class="install-steps">
+        <li>Click <strong>Download Android APK</strong> (<a href="https://github.com/fasayyed89/Islamic-Tasbih-Counter-App/releases/latest/download/IslamicTasbih.apk" style="color: var(--primary); font-weight: bold;">IslamicTasbih.apk</a>).</li>
+        <li>Open your Downloads folder and tap the APK file.</li>
+        <li>If your phone asks to <em>"Allow installation from unknown sources"</em>, click <strong>Settings → Allow</strong>.</li>
+        <li>Tap <strong>Install</strong> and enjoy!</li>
+      </ol>
+    </div>
+
+    <div class="install-box">
+      <h3>🍏 How to Install on iPhone (Safari Web App)</h3>
+      <ol class="install-steps">
+        <li>Open this page in <strong>Safari</strong> on your iPhone.</li>
+        <li>Tap the <strong>Share button</strong> (square with an up-arrow at bottom of screen).</li>
+        <li>Scroll down and tap <strong>"Add to Home Screen"</strong>.</li>
+        <li>The Islamic Tasbih icon will appear on your home screen and open in full-screen mode offline!</li>
+      </ol>
+    </div>
+
+    <!-- QR Code Section -->
+    <div class="qr-card">
+      <h3>📲 Scan to Open on Your Phone</h3>
+      <p style="opacity: 0.85; margin-bottom: 20px; font-size: 14px;">Scan with your camera to open this download page directly on your mobile device</p>
+      <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=https://fasayyed89.github.io/Islamic-Tasbih-Counter-App/&color=D4AF37&bgcolor=0D2137" alt="QR Code" style="border-radius: 12px; border: 3px solid var(--gold); width: 170px; height: 170px;">
+    </div>
+
+  </div>
+
+  <footer>
+    <p>سُبْحَانَ اللَّهِ وَبِحَمْدِهِ • سُبْحَانَ اللَّهِ الْعَظِيمِ</p>
+    <p style="margin-top: 6px;">Open Source Project hosted on <a href="https://github.com/fasayyed89/Islamic-Tasbih-Counter-App" target="_blank">GitHub</a></p>
+  </footer>
+
+  <script>
+    let count = 0;
+    let target = 33;
+
+    // Web Audio Synthesized Bead Click Sound
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    let audioCtx = null;
+
+    function playBeadClick() {
+      try {
+        if (!audioCtx) audioCtx = new AudioContext();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(150, audioCtx.currentTime + 0.025);
+        gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.025);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.025);
+      } catch (e) {}
+    }
+
+    function triggerHaptic(strong = false) {
+      if (navigator.vibrate) {
+        if (strong) {
+          navigator.vibrate([180, 80, 180, 80, 200, 80, 450]);
+        } else {
+          navigator.vibrate(35);
+        }
+      }
+    }
+
+    function updateUI() {
+      document.getElementById('countDisplay').innerText = count;
+      document.getElementById('targetDisplay').innerText = target === Infinity ? 'Free (∞)' : `/ ${target}`;
+    }
+
+    function setPreset(val, el) {
+      target = val;
+      document.querySelectorAll('.preset-pill').forEach(p => p.classList.remove('active'));
+      if (el) el.classList.add('active');
+      playBeadClick();
+      triggerHaptic();
+      updateUI();
+    }
+
+    function increment() {
+      count++;
+      playBeadClick();
+      if (target !== Infinity && count === target) {
+        triggerHaptic(true);
+        triggerCelebration();
+      } else {
+        triggerHaptic(false);
+      }
+      updateUI();
+    }
+
+    function decrement() {
+      if (count > 0) count--;
+      playBeadClick();
+      triggerHaptic(false);
+      updateUI();
+    }
+
+    function resetCounter() {
+      if (count > 0 && confirm("Reset count to 0?")) {
+        count = 0;
+        playBeadClick();
+        triggerHaptic(false);
+        updateUI();
+      }
+    }
+
+    // Confetti Animation Engine
+    function triggerCelebration() {
+      const canvas = document.getElementById('celebrationCanvas');
+      const ctx = canvas.getContext('2d');
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      canvas.style.display = 'block';
+
+      const particles = [];
+      const colors = ['#D4AF37', '#1B5E20', '#E53935', '#00ACC1', '#FB8C00', '#8E24AA', '#FFFFFF'];
+
+      for (let i = 0; i < 90; i++) {
+        particles.push({
+          x: canvas.width / 2,
+          y: canvas.height * 0.4,
+          vx: (Math.random() - 0.5) * 14,
+          vy: -Math.random() * 12 - 3,
+          size: Math.random() * 8 + 6,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          rotation: Math.random() * 360,
+          rotationSpeed: (Math.random() - 0.5) * 10,
+          alpha: 1
+        });
+      }
+
+      let frame = 0;
+      function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particles.forEach(p => {
+          p.x += p.vx;
+          p.y += p.vy;
+          p.vy += 0.35; // gravity
+          p.rotation += p.rotationSpeed;
+          p.alpha -= 0.008;
+
+          if (p.alpha > 0) {
+            ctx.save();
+            ctx.translate(p.x, p.y);
+            ctx.rotate(p.rotation * Math.PI / 180);
+            ctx.fillStyle = p.color;
+            ctx.globalAlpha = Math.max(0, p.alpha);
+            ctx.fillRect(-p.size / 2, -p.size / 4, p.size, p.size / 2);
+            ctx.restore();
+          }
+        });
+
+        frame++;
+        if (frame < 140) {
+          requestAnimationFrame(animate);
+        } else {
+          canvas.style.display = 'none';
+        }
+      }
+      animate();
+    }
+  </script>
+</body>
+</html>
