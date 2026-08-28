@@ -36,10 +36,11 @@ fun MainNavigation(
             entryProvider = entryProvider {
                 entry<Main> {
                     MainScreen(
-                        onSettingsClick   = { backStack.add(Settings) },
-                        settings          = settings,
-                        onRecordIncrement = { settingsRepo.recordIncrement() },
-                        viewModel         = mainViewModel,
+                        onSettingsClick    = { backStack.add(Settings) },
+                        settings           = settings,
+                        onRecordIncrement  = { settingsRepo.recordIncrement() },
+                        onUpdatePresetSlot = { index, target -> settingsRepo.updatePresetSlot(index, target) },
+                        viewModel          = mainViewModel,
                     )
                 }
                 entry<Settings> {

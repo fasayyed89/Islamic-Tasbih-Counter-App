@@ -1,5 +1,6 @@
 package com.example.tasbihcounter.ui.settings
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -26,6 +27,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -41,17 +43,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.tasbihcounter.data.CelebrationEffect
 import com.example.tasbihcounter.data.DefaultSettingsRepository
+import com.example.tasbihcounter.data.IslamicBackground
 import com.example.tasbihcounter.data.TasbihSettings
-import com.example.tasbihcounter.theme.TasbihCounterTheme
 import com.example.tasbihcounter.theme.TasbihTheme
 import com.example.tasbihcounter.ui.components.AppIcons
 
@@ -92,11 +95,13 @@ fun SettingsScreen(
         settings                 = settings,
         onBack                   = onBack,
         onThemeSelect            = viewModel::setTheme,
+        onBackgroundSelect       = viewModel::setBackground,
         onHapticToggle           = viewModel::setHaptic,
         onSoundToggle            = viewModel::setSound,
         onVolumeButtonToggle     = viewModel::setVolumeButton,
         onKeepScreenOnToggle     = viewModel::setKeepScreenOn,
         onCelebrationSelect      = viewModel::setCelebrationEffect,
+        onResetPresetSlots       = viewModel::resetPresetSlots,
         onResetHistory           = viewModel::resetHistory,
         modifier                 = modifier,
     )
@@ -108,15 +113,18 @@ internal fun SettingsScreenContent(
     settings: TasbihSettings,
     onBack: () -> Unit,
     onThemeSelect: (TasbihTheme) -> Unit,
+    onBackgroundSelect: (IslamicBackground) -> Unit,
     onHapticToggle: (Boolean) -> Unit,
     onSoundToggle: (Boolean) -> Unit,
     onVolumeButtonToggle: (Boolean) -> Unit,
     onKeepScreenOnToggle: (Boolean) -> Unit,
     onCelebrationSelect: (CelebrationEffect) -> Unit,
+    onResetPresetSlots: () -> Unit,
     onResetHistory: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     var showClearHistoryDialog by remember { mutableStateOf(false) }
+    var showResetPresetsDialog by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -161,6 +169,53 @@ internal fun SettingsScreenContent(
                 .padding(horizontal = 16.dp, vertical = 12.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
+            // ── Islamic Arch Themed Background section ──────────────────────
+            item { SectionHeader(title = "Islamic Background  •  خلفية المحراب والزخرفة") }
+
+            items(IslamicBackground.entries) { bg ->
+                BackgroundOptionCard(
+                    background = bg,
+                    isSelected = settings.selectedBackground == bg,
+                    onClick    = { onBackgroundSelect(bg) },
+                )
+            }
+
+            item { HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp)) }
+
+            // ── Preset Customization Section ────────────────────────────────
+            item { SectionHeader(title = "Preset Bubbles  •  تخصيص الفقاعات") }
+
+            item {
+                Card(
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(14.dp),
+                        verticalArrangement = Arrangement.spacedBy(6.dp),
+                    ) {
+                        Text(
+                            text = "💡 Double-tap any bubble on the main screen to edit its target number directly.",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
+                        )
+                        Spacer(Modifier.height(4.dp))
+                        OutlinedButton(
+                            onClick = { showResetPresetsDialog = true },
+                            shape = RoundedCornerShape(12.dp),
+                            modifier = Modifier.fillMaxWidth(),
+                        ) {
+                            Text("Reset Preset Bubbles to Default (3, 5, 7.. 313)")
+                        }
+                    }
+                }
+            }
+
+            item { HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp)) }
+
             // ── Feedback & Sound section ───────────────────────────────────
             item { SectionHeader(title = "Feedback & Audio  •  الصوت والاهتزاز") }
 
@@ -234,7 +289,7 @@ internal fun SettingsScreenContent(
             item { HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp)) }
 
             // ── Theme section ──────────────────────────────────────────────
-            item { SectionHeader(title = "Theme  •  المظهر") }
+            item { SectionHeader(title = "Theme Color  •  لون الواجهة") }
 
             items(themeOptions) { option ->
                 ThemeCard(
@@ -246,6 +301,31 @@ internal fun SettingsScreenContent(
 
             item { Spacer(Modifier.height(16.dp)) }
         }
+    }
+
+    // Confirmation dialog to reset preset bubbles
+    if (showResetPresetsDialog) {
+        AlertDialog(
+            onDismissRequest = { showResetPresetsDialog = false },
+            title = { Text("Reset Preset Bubbles?", fontWeight = FontWeight.Bold) },
+            text = { Text("This will restore all 12 preset bubbles to their default targets (3, 5, 7, 10, 11, 33, 40, 70, 92, 100, 120, 313).") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        onResetPresetSlots()
+                        showResetPresetsDialog = false
+                    }
+                ) {
+                    Text("Reset Defaults", fontWeight = FontWeight.Bold)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showResetPresetsDialog = false }) {
+                    Text("Cancel")
+                }
+            },
+            shape = RoundedCornerShape(20.dp),
+        )
     }
 
     // Confirmation dialog to clear statistics
@@ -284,6 +364,100 @@ private fun SectionHeader(title: String) {
         color = MaterialTheme.colorScheme.primary,
         modifier = Modifier.padding(start = 4.dp, bottom = 2.dp),
     )
+}
+
+@Composable
+private fun BackgroundOptionCard(
+    background: IslamicBackground,
+    isSelected: Boolean,
+    onClick: () -> Unit,
+) {
+    Card(
+        shape     = RoundedCornerShape(16.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = if (isSelected) 4.dp else 1.dp),
+        colors    = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        modifier  = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(16.dp))
+            .clickable(onClick = onClick)
+            .then(
+                if (isSelected)
+                    Modifier.border(
+                        width  = 2.dp,
+                        color  = MaterialTheme.colorScheme.primary,
+                        shape  = RoundedCornerShape(16.dp),
+                    )
+                else Modifier
+            ),
+    ) {
+        Row(
+            modifier              = Modifier
+                .fillMaxWidth()
+                .padding(12.dp),
+            verticalAlignment     = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(14.dp),
+                modifier = Modifier.weight(1f),
+            ) {
+                if (background.drawableRes != null) {
+                    Image(
+                        painter = painterResource(id = background.drawableRes),
+                        contentDescription = background.displayName,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .size(48.dp)
+                            .clip(RoundedCornerShape(10.dp))
+                            .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(10.dp)),
+                    )
+                } else {
+                    Box(
+                        modifier = Modifier
+                            .size(48.dp)
+                            .clip(RoundedCornerShape(10.dp))
+                            .background(MaterialTheme.colorScheme.primaryContainer),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Text("🎨", fontSize = 20.sp)
+                    }
+                }
+
+                Column {
+                    Text(
+                        text  = background.displayName,
+                        style = MaterialTheme.typography.bodyLarge.copy(
+                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                        ),
+                        color = MaterialTheme.colorScheme.onSurface,
+                    )
+                    Text(
+                        text  = background.arabicName,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                    )
+                }
+            }
+
+            if (isSelected) {
+                Box(
+                    modifier = Modifier
+                        .size(24.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.primary),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Icon(
+                        imageVector = AppIcons.Check,
+                        contentDescription = "Selected",
+                        tint = MaterialTheme.colorScheme.onPrimary,
+                        modifier = Modifier.size(16.dp),
+                    )
+                }
+            }
+        }
+    }
 }
 
 @Composable
@@ -350,12 +524,87 @@ private fun CelebrationEffectCard(
             }
 
             if (isSelected) {
-                Icon(
-                    imageVector        = AppIcons.Check,
-                    contentDescription = "Selected",
-                    tint               = MaterialTheme.colorScheme.primary,
-                    modifier           = Modifier.size(22.dp),
+                Box(
+                    modifier = Modifier
+                        .size(24.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.primary),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Icon(
+                        imageVector = AppIcons.Check,
+                        contentDescription = "Selected",
+                        tint = MaterialTheme.colorScheme.onPrimary,
+                        modifier = Modifier.size(16.dp),
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun HistoryStatsSummaryCard(
+    todayCount: Int,
+    lifetimeCount: Int,
+    onClearHistory: () -> Unit,
+) {
+    Card(
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceAround,
+            ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(
+                        text = "Today's Dhikr",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                    )
+                    Spacer(Modifier.height(4.dp))
+                    Text(
+                        text = "$todayCount",
+                        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                        color = MaterialTheme.colorScheme.primary,
+                    )
+                }
+                Box(
+                    modifier = Modifier
+                        .width(1.dp)
+                        .height(40.dp)
+                        .background(MaterialTheme.colorScheme.outlineVariant)
                 )
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(
+                        text = "All-Time Total",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                    )
+                    Spacer(Modifier.height(4.dp))
+                    Text(
+                        text = "$lifetimeCount",
+                        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                        color = MaterialTheme.colorScheme.primary,
+                    )
+                }
+            }
+
+            Spacer(Modifier.height(12.dp))
+
+            OutlinedButton(
+                onClick = onClearHistory,
+                shape = RoundedCornerShape(12.dp),
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text("Clear Wird History", color = MaterialTheme.colorScheme.error)
             }
         }
     }
@@ -370,24 +619,23 @@ private fun ToggleCard(
 ) {
     Card(
         shape     = RoundedCornerShape(16.dp),
-        colors    = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+        colors    = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         modifier  = Modifier.fillMaxWidth(),
     ) {
         Row(
             modifier              = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 18.dp, vertical = 14.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
+                .padding(horizontal = 16.dp, vertical = 12.dp),
             verticalAlignment     = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
         ) {
-            Column(modifier = Modifier.weight(1f).padding(end = 12.dp)) {
+            Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text  = title,
                     style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Medium),
                     color = MaterialTheme.colorScheme.onSurface,
                 )
-                Spacer(Modifier.height(2.dp))
                 Text(
                     text  = subtitle,
                     style = MaterialTheme.typography.bodySmall,
@@ -403,81 +651,6 @@ private fun ToggleCard(
 }
 
 @Composable
-private fun HistoryStatsSummaryCard(
-    todayCount: Int,
-    lifetimeCount: Int,
-    onClearHistory: () -> Unit,
-) {
-    Card(
-        shape     = RoundedCornerShape(16.dp),
-        colors    = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f),
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
-        modifier  = Modifier.fillMaxWidth(),
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Column {
-                    Text(
-                        text = "Today's Wird",
-                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
-                        color = MaterialTheme.colorScheme.primary,
-                    )
-                    Text(
-                        text = "$todayCount Dhikr",
-                        style = MaterialTheme.typography.titleLarge.copy(
-                            fontWeight = FontWeight.ExtraBold,
-                            fontSize = 24.sp,
-                        ),
-                        color = MaterialTheme.colorScheme.onSurface,
-                    )
-                }
-
-                Column(horizontalAlignment = Alignment.End) {
-                    Text(
-                        text = "All-Time Total",
-                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
-                        color = MaterialTheme.colorScheme.secondary,
-                    )
-                    Text(
-                        text = "$lifetimeCount",
-                        style = MaterialTheme.typography.titleLarge.copy(
-                            fontWeight = FontWeight.ExtraBold,
-                            fontSize = 24.sp,
-                        ),
-                        color = MaterialTheme.colorScheme.onSurface,
-                    )
-                }
-            }
-
-            Spacer(Modifier.height(8.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End,
-            ) {
-                TextButton(onClick = onClearHistory) {
-                    Text(
-                        text = "Reset Records",
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.error,
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
 private fun ThemeCard(
     option: ThemeOption,
     isSelected: Boolean,
@@ -485,7 +658,7 @@ private fun ThemeCard(
 ) {
     Card(
         shape     = RoundedCornerShape(16.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = if (isSelected) 5.dp else 1.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = if (isSelected) 4.dp else 1.dp),
         colors    = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         modifier  = Modifier
             .fillMaxWidth()
@@ -504,78 +677,58 @@ private fun ThemeCard(
         Row(
             modifier              = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
+                .padding(14.dp),
             verticalAlignment     = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
-            // Color swatches
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                ColorSwatch(color = option.primarySwatch)
-                ColorSwatch(color = option.secondarySwatch)
-                ColorSwatch(color = option.bgSwatch, hasBorder = true)
-            }
-
-            Spacer(Modifier.width(16.dp))
-
-            // Names
-            Column(modifier = Modifier.weight(1f)) {
+            Column {
                 Text(
-                    text  = option.theme.arabicName,
+                    text  = option.theme.displayName,
                     style = MaterialTheme.typography.bodyLarge.copy(
-                        fontWeight = FontWeight.Bold,
-                        fontSize   = 15.sp,
+                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
                     ),
                     color = MaterialTheme.colorScheme.onSurface,
                 )
                 Text(
-                    text  = option.theme.displayName,
+                    text  = option.theme.arabicName,
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                 )
             }
 
-            // Selected checkmark
-            if (isSelected) {
-                Icon(
-                    imageVector        = AppIcons.Check,
-                    contentDescription = "Selected",
-                    tint               = MaterialTheme.colorScheme.primary,
-                    modifier           = Modifier.size(24.dp),
-                )
+            Row(
+                verticalAlignment     = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                // Color palette preview dots
+                listOf(option.primarySwatch, option.secondarySwatch, option.bgSwatch).forEach { color ->
+                    Box(
+                        modifier = Modifier
+                            .size(20.dp)
+                            .clip(CircleShape)
+                            .background(color)
+                            .border(1.dp, Color.Black.copy(alpha = 0.12f), CircleShape),
+                    )
+                }
+
+                if (isSelected) {
+                    Spacer(Modifier.width(4.dp))
+                    Box(
+                        modifier = Modifier
+                            .size(24.dp)
+                            .clip(CircleShape)
+                            .background(MaterialTheme.colorScheme.primary),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Icon(
+                            imageVector = AppIcons.Check,
+                            contentDescription = "Selected",
+                            tint = MaterialTheme.colorScheme.onPrimary,
+                            modifier = Modifier.size(16.dp),
+                        )
+                    }
+                }
             }
         }
-    }
-}
-
-@Composable
-private fun ColorSwatch(color: Color, hasBorder: Boolean = false) {
-    Box(
-        modifier = Modifier
-            .size(32.dp)
-            .clip(CircleShape)
-            .background(color)
-            .then(
-                if (hasBorder) Modifier.border(1.dp, Color.LightGray, CircleShape)
-                else Modifier
-            ),
-    )
-}
-
-// ── Previews ────────────────────────────────────────────────────────────────
-@Preview(showBackground = true)
-@Composable
-private fun SettingsPreview() {
-    TasbihCounterTheme {
-        SettingsScreenContent(
-            settings             = TasbihSettings(),
-            onBack               = {},
-            onThemeSelect        = {},
-            onHapticToggle       = {},
-            onSoundToggle        = {},
-            onVolumeButtonToggle = {},
-            onKeepScreenOnToggle = {},
-            onCelebrationSelect  = {},
-            onResetHistory       = {},
-        )
     }
 }

@@ -12,8 +12,11 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -42,6 +45,7 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedIconButton
 import androidx.compose.material3.OutlinedTextField
@@ -58,8 +62,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
@@ -67,19 +69,21 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.core.content.getSystemService
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.tasbihcounter.data.TasbihSettings
-import com.example.tasbihcounter.theme.TasbihCounterTheme
 import com.example.tasbihcounter.ui.components.AppIcons
 import com.example.tasbihcounter.ui.components.CelebrationParticleOverlay
 import com.example.tasbihcounter.ui.util.BeadSoundPlayer
@@ -90,6 +94,7 @@ fun MainScreen(
     onSettingsClick: () -> Unit,
     settings: TasbihSettings,
     onRecordIncrement: () -> Unit,
+    onUpdatePresetSlot: (Int, Int) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: MainScreenViewModel = viewModel(),
 ) {
@@ -136,237 +141,258 @@ fun MainScreen(
         }
     }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Column {
-                        Text(
-                            text = "سُبْحَانَ اللَّهِ",
-                            style = MaterialTheme.typography.titleLarge.copy(
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 20.sp,
-                            ),
-                            color = MaterialTheme.colorScheme.onPrimary,
-                        )
-                        Text(
-                            text = "Tasbih Counter",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.8f),
-                        )
-                    }
-                },
-                actions = {
-                    // Full Screen Tap toggle
-                    IconButton(onClick = { viewModel.toggleFullScreenTapMode() }) {
-                        Icon(
-                            imageVector = AppIcons.TouchApp,
-                            contentDescription = "Full Screen Tap Mode",
-                            tint = if (state.fullScreenTapMode) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.onPrimary,
-                        )
-                    }
-                    // History / Wird Tracker icon
-                    IconButton(onClick = { viewModel.showHistoryDialog(true) }) {
-                        Icon(
-                            imageVector = AppIcons.BarChart,
-                            contentDescription = "Dhikr History & Statistics",
-                            tint = MaterialTheme.colorScheme.onPrimary,
-                        )
-                    }
-                    // Settings icon
-                    IconButton(onClick = onSettingsClick) {
-                        Icon(
-                            imageVector = AppIcons.Settings,
-                            contentDescription = "Settings",
-                            tint = MaterialTheme.colorScheme.onPrimary,
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                ),
+    Box(modifier = modifier.fillMaxSize()) {
+
+        // ── Themed Islamic Arch Background Layer ─────────────────────────────
+        if (settings.selectedBackground.drawableRes != null) {
+            Image(
+                painter = painterResource(id = settings.selectedBackground.drawableRes),
+                contentDescription = settings.selectedBackground.displayName,
+                contentScale = ContentScale.FillBounds,
+                modifier = Modifier.fillMaxSize(),
             )
-        },
-        containerColor = MaterialTheme.colorScheme.background,
-    ) { innerPadding ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .then(
-                    if (state.fullScreenTapMode) {
-                        Modifier.clickable { handleIncrement() }
-                    } else Modifier
-                ),
-        ) {
-            Column(
-                modifier = modifier
+            // Subtle frosted overlay to ensure maximum contrast and readability
+            Box(
+                modifier = Modifier
                     .fillMaxSize()
-                    .padding(horizontal = 14.dp, vertical = 4.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.SpaceBetween,
+                    .background(MaterialTheme.colorScheme.background.copy(alpha = 0.45f))
+            )
+        } else {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.background)
+            )
+        }
+
+        // ── Main UI Scaffold (with completely Transparent Floating Top Bar) ──
+        Scaffold(
+            containerColor = Color.Transparent,
+            topBar = {
+                TopAppBar(
+                    title = {
+                        Column {
+                            Text(
+                                text = "سُبْحَانَ اللَّهِ",
+                                style = MaterialTheme.typography.titleLarge.copy(
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 20.sp,
+                                ),
+                                color = MaterialTheme.colorScheme.primary,
+                            )
+                            Text(
+                                text = "Tasbih Counter",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.75f),
+                            )
+                        }
+                    },
+                    actions = {
+                        // Full Screen Tap toggle
+                        IconButton(
+                            onClick = { viewModel.toggleFullScreenTapMode() },
+                            colors = IconButtonDefaults.iconButtonColors(
+                                containerColor = if (state.fullScreenTapMode)
+                                    MaterialTheme.colorScheme.primaryContainer
+                                else Color.Transparent
+                            )
+                        ) {
+                            Icon(
+                                imageVector = AppIcons.TouchApp,
+                                contentDescription = "Full Screen Tap Mode",
+                                tint = MaterialTheme.colorScheme.primary,
+                            )
+                        }
+
+                        // Daily Wird History Dialog
+                        IconButton(onClick = { viewModel.showHistoryDialog(true) }) {
+                            Icon(
+                                imageVector = AppIcons.BarChart,
+                                contentDescription = "Daily Wird & History",
+                                tint = MaterialTheme.colorScheme.primary,
+                            )
+                        }
+
+                        // Settings screen
+                        IconButton(onClick = onSettingsClick) {
+                            Icon(
+                                imageVector = AppIcons.Settings,
+                                contentDescription = "Settings",
+                                tint = MaterialTheme.colorScheme.primary,
+                            )
+                        }
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = Color.Transparent,
+                        titleContentColor = MaterialTheme.colorScheme.primary,
+                        actionIconContentColor = MaterialTheme.colorScheme.primary,
+                    ),
+                )
+            },
+        ) { innerPadding ->
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+                    .then(
+                        if (state.fullScreenTapMode) {
+                            Modifier.clickable { handleIncrement() }
+                        } else {
+                            Modifier
+                        }
+                    ),
             ) {
-
-                // ── Full-Screen Tap Indicator Banner ───────────────────────────
-                if (state.fullScreenTapMode) {
-                    Surface(
-                        color = MaterialTheme.colorScheme.secondaryContainer,
-                        shape = RoundedCornerShape(12.dp),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 4.dp)
-                            .clickable { viewModel.toggleFullScreenTapMode() },
-                    ) {
-                        Text(
-                            text = "📱 Full-Screen Tap Mode Active (Tap anywhere to count • Tap here to exit)",
-                            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
-                            color = MaterialTheme.colorScheme.onSecondaryContainer,
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp),
-                        )
-                    }
-                } else {
-                    // ── Arabic blessing header ─────────────────────────────────
-                    Text(
-                        text = "بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ",
-                        style = MaterialTheme.typography.bodyLarge.copy(
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold,
-                        ),
-                        color = MaterialTheme.colorScheme.secondary,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 2.dp),
-                    )
-                }
-
-                // ── 3-Row Centered Preset Bubbles Selector ──────────────────────
-                PresetBubblesThreeRows(
-                    selectedPreset = state.selectedPreset,
-                    customTarget = state.customTarget,
-                    onPresetSelected = { preset ->
-                        viewModel.selectPreset(preset)
-                        performTapHaptic()
-                    },
-                    onCustomClicked = {
-                        viewModel.showCustomTargetDialog(true)
-                        performTapHaptic()
-                    },
-                )
-
-                // ── Circular progress counter ──────────────────────────────────
-                CircularCounter(
-                    count = state.count,
-                    progress = state.progress,
-                    isComplete = state.isComplete,
-                    maxCount = state.maxCount,
-                    isInfinite = state.isInfinite,
-                )
-
-                // ── Action buttons (+ primary, − and Reset icons) ──────────────
                 Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 14.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                    verticalArrangement = Arrangement.SpaceBetween,
                 ) {
-                    // Main + button
-                    Button(
-                        onClick = { handleIncrement() },
-                        modifier = Modifier.size(92.dp),
-                        shape = CircleShape,
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.primary,
-                        ),
-                        elevation = ButtonDefaults.buttonElevation(
-                            defaultElevation = 6.dp,
-                            pressedElevation = 2.dp,
-                        ),
-                    ) {
-                        Icon(
-                            imageVector = AppIcons.Add,
-                            contentDescription = "Increment",
-                            modifier = Modifier.size(40.dp),
-                            tint = MaterialTheme.colorScheme.onPrimary,
+                    // ── Full-Screen Tap Indicator Banner ───────────────────────────
+                    if (state.fullScreenTapMode) {
+                        Surface(
+                            color = MaterialTheme.colorScheme.secondaryContainer,
+                            shape = RoundedCornerShape(12.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 2.dp)
+                                .clickable { viewModel.toggleFullScreenTapMode() },
+                        ) {
+                            Text(
+                                text = "📱 Full-Screen Tap Mode Active (Tap anywhere to count • Tap here to exit)",
+                                style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
+                                color = MaterialTheme.colorScheme.onSecondaryContainer,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp),
+                            )
+                        }
+                    } else {
+                        // ── Arabic blessing header ─────────────────────────────────
+                        Text(
+                            text = "بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ",
+                            style = MaterialTheme.typography.bodyLarge.copy(
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.Bold,
+                            ),
+                            color = MaterialTheme.colorScheme.primary,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 2.dp),
                         )
                     }
 
-                    // − and Reset icon-only row
+                    // ── 3-Row Centered Editable Preset Bubbles ──────────────────
+                    PresetBubblesThreeRows(
+                        presetSlots = settings.customPresetSlots,
+                        selectedSlotIndex = state.selectedSlotIndex,
+                        isInfinite = state.isInfinite,
+                        isCustom = state.isCustom,
+                        customTarget = state.customTarget,
+                        onSlotSelected = { index, target ->
+                            viewModel.selectPresetSlot(index, target)
+                            performTapHaptic()
+                        },
+                        onSlotEditRequested = { index ->
+                            viewModel.openEditSlotDialog(index)
+                        },
+                        onInfinitySelected = {
+                            viewModel.selectInfinity()
+                            performTapHaptic()
+                        },
+                        onCustomClicked = {
+                            viewModel.openCustomTargetDialog()
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp),
+                    )
+
+                    // ── Circular Islamic Bead Counter with Progress Ring ─────────
+                    TasbihCircularDisplay(
+                        count = state.count,
+                        maxCount = state.maxCount,
+                        isInfinite = state.isInfinite,
+                        isComplete = state.isComplete,
+                        progress = state.progress,
+                        modifier = Modifier.weight(1f, fill = false),
+                    )
+
+                    // ── Lower Action Row: Minus (−), Giant Count (+), Reset (🔄) ─
                     Row(
-                        horizontalArrangement = Arrangement.spacedBy(28.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 20.dp, top = 4.dp),
+                        horizontalArrangement = Arrangement.SpaceEvenly,
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        // Minus button
-                        FilledTonalIconButton(
+                        // Minus / Decrement button
+                        OutlinedIconButton(
                             onClick = {
                                 viewModel.decrement()
                                 performTapHaptic()
                             },
                             modifier = Modifier.size(54.dp),
                             shape = CircleShape,
+                            enabled = state.count > 0,
+                            colors = IconButtonDefaults.outlinedIconButtonColors(
+                                containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.85f),
+                            ),
                         ) {
-                            Icon(
-                                imageVector = AppIcons.Minus,
-                                contentDescription = "Decrement",
-                                modifier = Modifier.size(24.dp),
+                            Text(
+                                text = "−",
+                                style = MaterialTheme.typography.headlineMedium.copy(
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 28.sp,
+                                ),
+                                color = if (state.count > 0) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
                             )
                         }
 
-                        // Icon-only Reset button (with accidental reset prevention)
-                        OutlinedIconButton(
+                        // Giant Primary Count Button (+)
+                        Button(
+                            onClick = { handleIncrement() },
+                            modifier = Modifier.size(88.dp),
+                            shape = CircleShape,
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = if (state.isComplete)
+                                    MaterialTheme.colorScheme.tertiary
+                                else
+                                    MaterialTheme.colorScheme.primary,
+                            ),
+                            elevation = ButtonDefaults.buttonElevation(
+                                defaultElevation = 6.dp,
+                                pressedElevation = 2.dp,
+                            ),
+                        ) {
+                            Icon(
+                                imageVector = AppIcons.Add,
+                                contentDescription = "Count +1",
+                                modifier = Modifier.size(44.dp),
+                                tint = MaterialTheme.colorScheme.onPrimary,
+                            )
+                        }
+
+                        // Accidental-Proof Reset Button (Dialog confirmation)
+                        FilledTonalIconButton(
                             onClick = {
                                 if (state.count > 0) {
                                     showResetDialog = true
-                                } else {
-                                    performTapHaptic()
                                 }
                             },
                             modifier = Modifier.size(54.dp),
                             shape = CircleShape,
+                            colors = IconButtonDefaults.filledTonalIconButtonColors(
+                                containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.85f),
+                            ),
                         ) {
                             Icon(
                                 imageVector = AppIcons.Reset,
-                                contentDescription = "Reset Counter",
-                                tint = MaterialTheme.colorScheme.primary,
+                                contentDescription = "Reset Count",
                                 modifier = Modifier.size(24.dp),
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
-                        }
-                    }
-                }
-
-                // ── Completion Alert Banner ────────────────────────────────────
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(38.dp),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    if (state.isComplete) {
-                        Surface(
-                            color = MaterialTheme.colorScheme.primaryContainer,
-                            shape = RoundedCornerShape(20.dp),
-                            shadowElevation = 2.dp,
-                        ) {
-                            Row(
-                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            ) {
-                                Text(
-                                    text = "الْحَمْدُ لِلَّهِ",
-                                    style = MaterialTheme.typography.bodyMedium.copy(
-                                        fontWeight = FontWeight.Bold,
-                                        fontSize = 14.sp,
-                                    ),
-                                    color = MaterialTheme.colorScheme.onPrimaryContainer,
-                                )
-                                Text(
-                                    text = "• Target Reached (${state.maxCount})!",
-                                    style = MaterialTheme.typography.bodySmall.copy(
-                                        fontWeight = FontWeight.SemiBold,
-                                    ),
-                                    color = MaterialTheme.colorScheme.onPrimaryContainer,
-                                )
-                            }
                         }
                     }
                 }
@@ -374,7 +400,35 @@ fun MainScreen(
         }
     }
 
-    // ── Wird History & Statistics Dialog ───────────────────────────────────
+    // ── Edit Preset Bubble Modal (Direct In-Place Editing) ───────────────────
+    state.editingSlotIndex?.let { slotIndex ->
+        val currentTarget = settings.customPresetSlots.getOrElse(slotIndex) { 33 }
+        EditPresetSlotDialog(
+            slotNumber = slotIndex + 1,
+            currentTarget = currentTarget,
+            onDismiss = { viewModel.dismissEditSlotDialog() },
+            onSave = { newTarget ->
+                onUpdatePresetSlot(slotIndex, newTarget)
+                viewModel.selectPresetSlot(slotIndex, newTarget)
+                viewModel.dismissEditSlotDialog()
+                performTapHaptic()
+            }
+        )
+    }
+
+    // ── Custom Target Modal (Triggered by Circular '+' Bubble) ───────────────
+    if (state.showCustomTargetDialog) {
+        CustomTargetDialog(
+            currentTarget = state.customTarget,
+            onDismiss = { viewModel.dismissCustomTargetDialog() },
+            onConfirm = { newTarget ->
+                viewModel.selectCustom(newTarget)
+                performTapHaptic()
+            },
+        )
+    }
+
+    // ── Daily History & 7-Day Trend Chart Modal ──────────────────────────────
     if (state.showHistoryDialog) {
         HistoryDialog(
             todayCount = settings.todayCount,
@@ -384,49 +438,32 @@ fun MainScreen(
         )
     }
 
-    // ── Custom Preset Target Dialog ────────────────────────────────────────
-    if (state.showCustomTargetDialog) {
-        CustomTargetDialog(
-            initialValue = state.customTarget,
-            onDismiss = { viewModel.showCustomTargetDialog(false) },
-            onConfirm = { customTarget ->
-                viewModel.setCustomTarget(customTarget)
-                performTapHaptic()
-            },
-        )
-    }
-
-    // ── Confirmation Dialog for Accidental Reset ───────────────────────────
+    // ── Reset Confirmation Dialog ───────────────────────────────────────────
     if (showResetDialog) {
         AlertDialog(
             onDismissRequest = { showResetDialog = false },
             title = {
                 Text(
-                    text = "إعادة الضبط  •  Reset Counter?",
-                    style = MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = FontWeight.Bold,
-                    ),
+                    text = "Reset Current Count?",
+                    fontWeight = FontWeight.Bold,
                 )
             },
             text = {
-                Text(
-                    text = "Are you sure you want to reset your current count (${state.count}) back to 0?",
-                    style = MaterialTheme.typography.bodyMedium,
-                )
+                Text(text = "Are you sure you want to reset your current count of ${state.count} back to 0?")
             },
             confirmButton = {
-                TextButton(
+                Button(
                     onClick = {
                         viewModel.reset()
                         showResetDialog = false
                         performTapHaptic()
-                    }
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.error,
+                    ),
+                    shape = RoundedCornerShape(20.dp),
                 ) {
-                    Text(
-                        text = "Reset",
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.error,
-                    )
+                    Text(text = "Reset")
                 }
             },
             dismissButton = {
@@ -516,10 +553,7 @@ fun MainScreen(
                                     textAlign = TextAlign.Center,
                                 )
                                 Spacer(Modifier.height(6.dp))
-                                val desc = if (state.selectedPreset == TasbihPreset.CUSTOM)
-                                    "Custom Target (${state.customTarget}x)"
-                                else
-                                    state.selectedPreset.description
+                                val desc = if (state.isCustom) "Custom Target (${state.customTarget}x)" else "Target (${state.maxCount}x)"
                                 Text(
                                     text = "You have completed your target of ${state.maxCount} Dhikr ($desc). May Allah accept your remembrance.",
                                     style = MaterialTheme.typography.bodySmall,
@@ -581,196 +615,170 @@ fun MainScreen(
     }
 }
 
-// ── 3-Row Centered Preset Bubbles Selector ───────────────────────────────────
+// ── 3-Row Centered Editable Preset Bubbles Selector ──────────────────────────
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun PresetBubblesThreeRows(
-    selectedPreset: TasbihPreset,
+    presetSlots: List<Int>,
+    selectedSlotIndex: Int?,
+    isInfinite: Boolean,
+    isCustom: Boolean,
     customTarget: Int,
-    onPresetSelected: (TasbihPreset) -> Unit,
+    onSlotSelected: (Int, Int) -> Unit,
+    onSlotEditRequested: (Int) -> Unit,
+    onInfinitySelected: () -> Unit,
     onCustomClicked: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val row1 = listOf(
-        TasbihPreset.COUNT_3,
-        TasbihPreset.COUNT_5,
-        TasbihPreset.COUNT_7,
-        TasbihPreset.COUNT_10,
-        TasbihPreset.COUNT_11,
-        TasbihPreset.COUNT_33,
-    )
-    val row2 = listOf(
-        TasbihPreset.COUNT_40,
-        TasbihPreset.COUNT_70,
-        TasbihPreset.COUNT_92,
-        TasbihPreset.COUNT_100,
-        TasbihPreset.COUNT_120,
-        TasbihPreset.COUNT_313,
-    )
+    val row1 = (0..5).map { it to (presetSlots.getOrElse(it) { 33 }) }
+    val row2 = (6..11).map { it to (presetSlots.getOrElse(it) { 100 }) }
 
     Column(
         modifier = modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(6.dp),
     ) {
-        // Row 1 (6 bubbles) - Centered
+        // Row 1: 6 Centered Editable Bubbles
         Row(
-            horizontalArrangement = Arrangement.spacedBy(6.dp, Alignment.CenterHorizontally),
-            verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            row1.forEach { preset ->
-                PresetBubble(
-                    label = preset.label,
-                    isSelected = selectedPreset == preset,
-                    onClick = { onPresetSelected(preset) },
+            row1.forEach { (slotIdx, targetVal) ->
+                EditablePresetBubble(
+                    label = "$targetVal",
+                    isSelected = selectedSlotIndex == slotIdx,
+                    onSelect = { onSlotSelected(slotIdx, targetVal) },
+                    onEdit = { onSlotEditRequested(slotIdx) },
                 )
+                Spacer(Modifier.width(5.dp))
             }
         }
 
-        // Row 2 (6 bubbles) - Centered
+        // Row 2: 6 Centered Editable Bubbles
         Row(
-            horizontalArrangement = Arrangement.spacedBy(6.dp, Alignment.CenterHorizontally),
-            verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            row2.forEach { preset ->
-                PresetBubble(
-                    label = preset.label,
-                    isSelected = selectedPreset == preset,
-                    onClick = { onPresetSelected(preset) },
+            row2.forEach { (slotIdx, targetVal) ->
+                EditablePresetBubble(
+                    label = "$targetVal",
+                    isSelected = selectedSlotIndex == slotIdx,
+                    onSelect = { onSlotSelected(slotIdx, targetVal) },
+                    onEdit = { onSlotEditRequested(slotIdx) },
                 )
+                Spacer(Modifier.width(5.dp))
             }
         }
 
-        // Row 3 (2 items: Infinity + Custom Pill) - Centered
+        // Row 3: Infinity (∞) and Compact '+' Circular Custom Bubble
         Row(
-            horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterHorizontally),
-            verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            // Infinity Bubble
-            PresetBubble(
+            // Infinity (∞) Bubble
+            PresetBubbleItem(
                 label = "∞",
-                isSelected = selectedPreset == TasbihPreset.FREE,
-                onClick = { onPresetSelected(TasbihPreset.FREE) },
-                sizeDp = 44,
-                fontSizeSp = 20,
+                isSelected = isInfinite,
+                onClick = onInfinitySelected,
             )
 
-            // Custom Preset Pill with Edit icon
-            val isCustomSelected = selectedPreset == TasbihPreset.CUSTOM
-            val customBgColor by animateColorAsState(
-                targetValue = if (isCustomSelected)
-                    MaterialTheme.colorScheme.primary
-                else
-                    MaterialTheme.colorScheme.surface,
-                label = "custom_bg",
-            )
-            val customContentColor by animateColorAsState(
-                targetValue = if (isCustomSelected)
-                    MaterialTheme.colorScheme.onPrimary
-                else
-                    MaterialTheme.colorScheme.onSurface,
-                label = "custom_content",
-            )
-            val customBorderColor by animateColorAsState(
-                targetValue = if (isCustomSelected)
-                    MaterialTheme.colorScheme.primary
-                else
-                    MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f),
-                label = "custom_border",
-            )
+            Spacer(Modifier.width(10.dp))
 
-            Surface(
-                modifier = Modifier
-                    .height(44.dp)
-                    .clip(RoundedCornerShape(22.dp))
-                    .clickable {
-                        if (isCustomSelected) {
-                            onCustomClicked()
-                        } else {
-                            onPresetSelected(TasbihPreset.CUSTOM)
-                        }
-                    },
-                shape = RoundedCornerShape(22.dp),
-                color = customBgColor,
-                border = androidx.compose.foundation.BorderStroke(
-                    width = if (isCustomSelected) 2.dp else 1.dp,
-                    color = customBorderColor,
+            // Circular '+' Custom Bubble
+            EditablePresetBubble(
+                label = if (isCustom) "$customTarget" else "+",
+                isSelected = isCustom,
+                onSelect = onCustomClicked,
+                onEdit = onCustomClicked,
+                isPlusIcon = !isCustom,
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun EditablePresetBubble(
+    label: String,
+    isSelected: Boolean,
+    onSelect: () -> Unit,
+    onEdit: () -> Unit,
+    isPlusIcon: Boolean = false,
+) {
+    val bgColor by animateColorAsState(
+        targetValue = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface.copy(alpha = 0.85f),
+        label = "bubbleBg",
+    )
+    val textColor by animateColorAsState(
+        targetValue = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface,
+        label = "bubbleText",
+    )
+
+    Box(
+        modifier = Modifier
+            .size(46.dp)
+            .clip(CircleShape)
+            .background(bgColor)
+            .border(
+                width = if (isSelected) 2.dp else 1.dp,
+                color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f),
+                shape = CircleShape,
+            )
+            .combinedClickable(
+                onClick = onSelect,
+                onDoubleClick = onEdit,
+                onLongClick = onEdit,
+            ),
+        contentAlignment = Alignment.Center,
+    ) {
+        if (isPlusIcon) {
+            Icon(
+                imageVector = AppIcons.Add,
+                contentDescription = "Custom Target",
+                tint = textColor,
+                modifier = Modifier.size(22.dp),
+            )
+        } else {
+            Text(
+                text = label,
+                style = MaterialTheme.typography.labelMedium.copy(
+                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                    fontSize = if (label.length >= 4) 11.sp else if (label.length == 3) 12.sp else 13.sp,
                 ),
-            ) {
-                Row(
-                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 6.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(6.dp),
-                ) {
-                    Icon(
-                        imageVector = AppIcons.Edit,
-                        contentDescription = "Custom Count",
-                        tint = customContentColor,
-                        modifier = Modifier.size(16.dp),
-                    )
-                    Text(
-                        text = if (isCustomSelected) "Custom: $customTarget" else "Custom",
-                        style = MaterialTheme.typography.titleSmall.copy(
-                            fontWeight = if (isCustomSelected) FontWeight.Bold else FontWeight.Medium,
-                            fontSize = 13.sp,
-                        ),
-                        color = customContentColor,
-                    )
-                }
-            }
+                color = textColor,
+                textAlign = TextAlign.Center,
+            )
         }
     }
 }
 
 @Composable
-private fun PresetBubble(
+private fun PresetBubbleItem(
     label: String,
     isSelected: Boolean,
     onClick: () -> Unit,
-    sizeDp: Int = 44,
-    fontSizeSp: Int = 0,
 ) {
     val bgColor by animateColorAsState(
-        targetValue = if (isSelected)
-            MaterialTheme.colorScheme.primary
-        else
-            MaterialTheme.colorScheme.surface,
-        label = "bubble_bg",
+        targetValue = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface.copy(alpha = 0.85f),
+        label = "bubbleBg",
     )
-    val contentColor by animateColorAsState(
-        targetValue = if (isSelected)
-            MaterialTheme.colorScheme.onPrimary
-        else
-            MaterialTheme.colorScheme.onSurface,
-        label = "bubble_content",
+    val textColor by animateColorAsState(
+        targetValue = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface,
+        label = "bubbleText",
     )
-    val borderColor by animateColorAsState(
-        targetValue = if (isSelected)
-            MaterialTheme.colorScheme.primary
-        else
-            MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
-        label = "bubble_border",
-    )
-
-    val calculatedFontSize = if (fontSizeSp > 0) {
-        fontSizeSp.sp
-    } else if (label.length > 2) {
-        12.sp
-    } else {
-        13.sp
-    }
 
     Box(
         modifier = Modifier
-            .size(sizeDp.dp)
+            .size(46.dp)
             .clip(CircleShape)
             .background(bgColor)
             .border(
                 width = if (isSelected) 2.dp else 1.dp,
-                color = borderColor,
+                color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f),
                 shape = CircleShape,
             )
             .clickable(onClick = onClick),
@@ -778,17 +786,228 @@ private fun PresetBubble(
     ) {
         Text(
             text = label,
-            style = MaterialTheme.typography.titleSmall.copy(
+            style = MaterialTheme.typography.labelMedium.copy(
                 fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-                fontSize = calculatedFontSize,
+                fontSize = 15.sp,
             ),
-            color = contentColor,
+            color = textColor,
             textAlign = TextAlign.Center,
         )
     }
 }
 
-// ── Wird History & Statistics Dialog ────────────────────────────────────────
+// ── Edit Preset Slot Modal (Direct On-Screen Edit) ──────────────────────────
+
+@Composable
+private fun EditPresetSlotDialog(
+    slotNumber: Int,
+    currentTarget: Int,
+    onDismiss: () -> Unit,
+    onSave: (Int) -> Unit,
+) {
+    var textValue by remember { mutableStateOf("$currentTarget") }
+    var isError by remember { mutableStateOf(false) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Column {
+                Text(
+                    text = "✏️ Edit Preset Bubble #$slotNumber",
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                    color = MaterialTheme.colorScheme.primary,
+                )
+                Text(
+                    text = "Set what count you want for this bubble:",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
+                )
+            }
+        },
+        text = {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(10.dp),
+            ) {
+                OutlinedTextField(
+                    value = textValue,
+                    onValueChange = { input ->
+                        val digitsOnly = input.filter { it.isDigit() }.take(6)
+                        textValue = digitsOnly
+                        isError = (digitsOnly.toIntOrNull() ?: 0) <= 0
+                    },
+                    label = { Text("Target Count") },
+                    placeholder = { Text("e.g. 500") },
+                    singleLine = true,
+                    isError = isError,
+                    supportingText = if (isError) { { Text("Please enter a valid count (1 - 999,999)") } } else null,
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Number,
+                        imeAction = ImeAction.Done,
+                    ),
+                    keyboardActions = KeyboardActions(
+                        onDone = {
+                            val parsed = textValue.toIntOrNull()
+                            if (parsed != null && parsed > 0) {
+                                onSave(parsed)
+                            }
+                        }
+                    ),
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(14.dp),
+                )
+
+                // Quick suggestions chips
+                Text(
+                    text = "Quick Presets:",
+                    style = MaterialTheme.typography.labelSmall,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.secondary,
+                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                ) {
+                    listOf(33, 100, 313, 500, 1000).forEach { chipVal ->
+                        FilterChip(
+                            selected = textValue == "$chipVal",
+                            onClick = { textValue = "$chipVal"; isError = false },
+                            label = { Text("$chipVal", fontSize = 11.sp) },
+                            shape = RoundedCornerShape(12.dp),
+                        )
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+                    val parsed = textValue.toIntOrNull()
+                    if (parsed != null && parsed > 0) {
+                        onSave(parsed)
+                    }
+                },
+                enabled = !isError && textValue.isNotBlank(),
+                shape = RoundedCornerShape(16.dp),
+            ) {
+                Text("Save & Set")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        },
+        shape = RoundedCornerShape(20.dp),
+    )
+}
+
+// ── Custom Target Modal (Triggered by Circular '+' Bubble) ───────────────────
+
+@Composable
+private fun CustomTargetDialog(
+    currentTarget: Int,
+    onDismiss: () -> Unit,
+    onConfirm: (Int) -> Unit,
+) {
+    var textValue by remember { mutableStateOf("$currentTarget") }
+    var isError by remember { mutableStateOf(false) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Column {
+                Text(
+                    text = "➕ Custom Target Dhikr",
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                    color = MaterialTheme.colorScheme.primary,
+                )
+                Text(
+                    text = "Enter any custom number of Dhikr to count:",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
+                )
+            }
+        },
+        text = {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(10.dp),
+            ) {
+                OutlinedTextField(
+                    value = textValue,
+                    onValueChange = { input ->
+                        val digitsOnly = input.filter { it.isDigit() }.take(6)
+                        textValue = digitsOnly
+                        isError = (digitsOnly.toIntOrNull() ?: 0) <= 0
+                    },
+                    label = { Text("Target Count") },
+                    placeholder = { Text("e.g. 500") },
+                    singleLine = true,
+                    isError = isError,
+                    supportingText = if (isError) { { Text("Please enter a valid count (1 - 999,999)") } } else null,
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Number,
+                        imeAction = ImeAction.Done,
+                    ),
+                    keyboardActions = KeyboardActions(
+                        onDone = {
+                            val parsed = textValue.toIntOrNull()
+                            if (parsed != null && parsed > 0) {
+                                onConfirm(parsed)
+                            }
+                        }
+                    ),
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(14.dp),
+                )
+
+                // Quick presets chips
+                Text(
+                    text = "Quick Choices:",
+                    style = MaterialTheme.typography.labelSmall,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.secondary,
+                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                ) {
+                    listOf(500, 1000, 2000, 5000).forEach { chipVal ->
+                        FilterChip(
+                            selected = textValue == "$chipVal",
+                            onClick = { textValue = "$chipVal"; isError = false },
+                            label = { Text("$chipVal", fontSize = 11.sp) },
+                            shape = RoundedCornerShape(12.dp),
+                        )
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+                    val parsed = textValue.toIntOrNull()
+                    if (parsed != null && parsed > 0) {
+                        onConfirm(parsed)
+                    }
+                },
+                enabled = !isError && textValue.isNotBlank(),
+                shape = RoundedCornerShape(16.dp),
+            ) {
+                Text("Start Counting")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        },
+        shape = RoundedCornerShape(20.dp),
+    )
+}
+
+// ── Daily History & 7-Day Trend Chart Modal ──────────────────────────────────
 
 @Composable
 private fun HistoryDialog(
@@ -797,26 +1016,26 @@ private fun HistoryDialog(
     recentDays: List<Pair<String, Int>>,
     onDismiss: () -> Unit,
 ) {
-    val primaryColor = MaterialTheme.colorScheme.primary
-    val maxBarCount = (recentDays.maxOfOrNull { it.second } ?: 1).coerceAtLeast(1)
-
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
-            Column {
-                Text(
-                    text = "سجل الورد والإحصائيات",
-                    style = MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 18.sp,
-                    ),
-                    color = MaterialTheme.colorScheme.primary,
-                )
-                Text(
-                    text = "Daily Wird & Activity History",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                Text("📊", fontSize = 22.sp)
+                Column {
+                    Text(
+                        text = "Daily Wird & History",
+                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                        color = MaterialTheme.colorScheme.primary,
+                    )
+                    Text(
+                        text = "سجل الورد اليومي والإحصائيات",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.secondary,
+                    )
+                }
             }
         },
         text = {
@@ -824,123 +1043,143 @@ private fun HistoryDialog(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(14.dp),
             ) {
-                // Today + Lifetime summary cards
+                // Summary Stat Cards
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(10.dp),
                 ) {
                     Card(
-                        modifier = Modifier.weight(1f),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f),
-                        ),
                         shape = RoundedCornerShape(14.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)
+                        ),
+                        modifier = Modifier.weight(1f),
                     ) {
-                        Column(modifier = Modifier.padding(12.dp)) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(12.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                        ) {
                             Text(
-                                text = "Today's Wird",
+                                text = "Today",
                                 style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                                color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f),
                             )
+                            Spacer(Modifier.height(2.dp))
                             Text(
                                 text = "$todayCount",
                                 style = MaterialTheme.typography.titleLarge.copy(
-                                    fontWeight = FontWeight.ExtraBold,
+                                    fontWeight = FontWeight.Bold,
                                     fontSize = 22.sp,
                                 ),
                                 color = MaterialTheme.colorScheme.primary,
-                            )
-                            Text(
-                                text = "Dhikr completed",
-                                style = MaterialTheme.typography.bodySmall.copy(fontSize = 10.sp),
-                                color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f),
                             )
                         }
                     }
 
                     Card(
-                        modifier = Modifier.weight(1f),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.5f),
-                        ),
                         shape = RoundedCornerShape(14.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.5f)
+                        ),
+                        modifier = Modifier.weight(1f),
                     ) {
-                        Column(modifier = Modifier.padding(12.dp)) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(12.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                        ) {
                             Text(
                                 text = "Lifetime Total",
                                 style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.onSecondaryContainer,
+                                color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.7f),
                             )
+                            Spacer(Modifier.height(2.dp))
                             Text(
                                 text = "$lifetimeCount",
                                 style = MaterialTheme.typography.titleLarge.copy(
-                                    fontWeight = FontWeight.ExtraBold,
+                                    fontWeight = FontWeight.Bold,
                                     fontSize = 22.sp,
                                 ),
                                 color = MaterialTheme.colorScheme.secondary,
-                            )
-                            Text(
-                                text = "All-time Dhikr",
-                                style = MaterialTheme.typography.bodySmall.copy(fontSize = 10.sp),
-                                color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.7f),
                             )
                         }
                     }
                 }
 
-                // 7-day activity bar chart
+                // 7-Day Activity Trend Bar Chart
                 Text(
-                    text = "7-Day Activity Trend:",
-                    style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
+                    text = "Last 7 Days Trend",
+                    style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
                     color = MaterialTheme.colorScheme.onSurface,
                 )
 
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(110.dp)
-                        .background(
-                            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f),
-                            shape = RoundedCornerShape(12.dp),
-                        )
-                        .padding(horizontal = 8.dp, vertical = 8.dp),
-                    horizontalArrangement = Arrangement.SpaceAround,
-                    verticalAlignment = Alignment.Bottom,
+                Card(
+                    shape = RoundedCornerShape(14.dp),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)),
+                    modifier = Modifier.fillMaxWidth(),
                 ) {
-                    recentDays.forEach { (label, count) ->
-                        val heightFraction = (count.toFloat() / maxBarCount.toFloat()).coerceIn(0.08f, 1f)
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Bottom,
-                            modifier = Modifier.fillMaxHeight(),
+                    val maxVal = maxOf(1, recentDays.maxOfOrNull { it.second } ?: 1)
+                    val primaryColor = MaterialTheme.colorScheme.primary
+                    val secondaryColor = MaterialTheme.colorScheme.secondary
+                    val outlineColor = MaterialTheme.colorScheme.outlineVariant
+
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(14.dp),
+                    ) {
+                        Canvas(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(110.dp)
                         ) {
-                            Text(
-                                text = if (count > 0) "$count" else "-",
-                                style = MaterialTheme.typography.labelSmall.copy(fontSize = 9.sp),
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            val barWidth = 24.dp.toPx()
+                            val spacing = (size.width - (barWidth * recentDays.size)) / (recentDays.size + 1)
+                            val chartHeight = size.height - 20.dp.toPx()
+
+                            // Baseline
+                            drawLine(
+                                color = outlineColor,
+                                start = Offset(0f, chartHeight),
+                                end = Offset(size.width, chartHeight),
+                                strokeWidth = 1.dp.toPx(),
                             )
-                            Spacer(Modifier.height(2.dp))
-                            Box(
-                                modifier = Modifier
-                                    .width(18.dp)
-                                    .fillMaxHeight(heightFraction)
-                                    .clip(RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp))
-                                    .background(
-                                        if (label == "Today")
-                                            primaryColor
-                                        else
-                                            MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.8f)
+
+                            recentDays.forEachIndexed { i, pair ->
+                                val x = spacing + i * (barWidth + spacing)
+                                val barFraction = (pair.second.toFloat() / maxVal.toFloat()).coerceIn(0.04f, 1f)
+                                val barH = chartHeight * barFraction
+                                val topY = chartHeight - barH
+
+                                drawRoundRect(
+                                    color = if (i == recentDays.size - 1) primaryColor else secondaryColor.copy(alpha = 0.8f),
+                                    topLeft = Offset(x, topY),
+                                    size = Size(barWidth, barH),
+                                    cornerRadius = CornerRadius(6.dp.toPx(), 6.dp.toPx()),
+                                )
+                            }
+                        }
+
+                        // Labels row beneath canvas
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                        ) {
+                            recentDays.forEachIndexed { i, pair ->
+                                Text(
+                                    text = pair.first,
+                                    style = MaterialTheme.typography.labelSmall.copy(
+                                        fontSize = 10.sp,
+                                        fontWeight = if (i == recentDays.size - 1) FontWeight.Bold else FontWeight.Normal,
                                     ),
-                            )
-                            Spacer(Modifier.height(4.dp))
-                            Text(
-                                text = label,
-                                style = MaterialTheme.typography.labelSmall.copy(
-                                    fontSize = 10.sp,
-                                    fontWeight = if (label == "Today") FontWeight.Bold else FontWeight.Normal,
-                                ),
-                                color = if (label == "Today") primaryColor else MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
+                                    color = if (i == recentDays.size - 1) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                                    textAlign = TextAlign.Center,
+                                    modifier = Modifier.weight(1f),
+                                )
+                            }
                         }
                     }
                 }
@@ -954,236 +1193,125 @@ private fun HistoryDialog(
                 Text("Close")
             }
         },
-        shape = RoundedCornerShape(24.dp),
+        shape = RoundedCornerShape(20.dp),
     )
 }
 
-// ── Custom Target Input Dialog ──────────────────────────────────────────────
+// ── Central Circular Counter Display with 33-Bead Islamic Ring ───────────────
 
 @Composable
-private fun CustomTargetDialog(
-    initialValue: Int,
-    onDismiss: () -> Unit,
-    onConfirm: (Int) -> Unit,
-) {
-    var textInput by remember { mutableStateOf(initialValue.toString()) }
-    var isError by remember { mutableStateOf(false) }
-    val quickPresets = listOf(50, 100, 500, 1000, 2000, 5000)
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = {
-            Column {
-                Text(
-                    text = "تحديد الهدف المخصص",
-                    style = MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 18.sp,
-                    ),
-                    color = MaterialTheme.colorScheme.primary,
-                )
-                Text(
-                    text = "Set Custom Target Number",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
-        },
-        text = {
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                Text(
-                    text = "Enter the target count you would like to reach:",
-                    style = MaterialTheme.typography.bodyMedium,
-                )
-
-                OutlinedTextField(
-                    value = textInput,
-                    onValueChange = { input ->
-                        val digits = input.filter { it.isDigit() }
-                        textInput = digits
-                        isError = digits.isEmpty() || (digits.toIntOrNull() ?: 0) <= 0
-                    },
-                    label = { Text("Target Count") },
-                    placeholder = { Text("e.g. 500") },
-                    singleLine = true,
-                    isError = isError,
-                    supportingText = if (isError) {
-                        { Text("Please enter a valid number (1 - 999,999)") }
-                    } else null,
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Number,
-                        imeAction = ImeAction.Done,
-                    ),
-                    keyboardActions = KeyboardActions(
-                        onDone = {
-                            val parsed = textInput.toIntOrNull()
-                            if (parsed != null && parsed > 0) {
-                                onConfirm(parsed)
-                            } else {
-                                isError = true
-                            }
-                        }
-                    ),
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp),
-                )
-
-                // Quick selector chips
-                Text(
-                    text = "Quick suggestions:",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(6.dp),
-                ) {
-                    quickPresets.take(3).forEach { number ->
-                        FilterChip(
-                            selected = textInput == number.toString(),
-                            onClick = {
-                                textInput = number.toString()
-                                isError = false
-                            },
-                            label = { Text(number.toString(), fontSize = 12.sp) },
-                            colors = FilterChipDefaults.filterChipColors(),
-                        )
-                    }
-                }
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(6.dp),
-                ) {
-                    quickPresets.drop(3).forEach { number ->
-                        FilterChip(
-                            selected = textInput == number.toString(),
-                            onClick = {
-                                textInput = number.toString()
-                                isError = false
-                            },
-                            label = { Text(number.toString(), fontSize = 12.sp) },
-                            colors = FilterChipDefaults.filterChipColors(),
-                        )
-                    }
-                }
-            }
-        },
-        confirmButton = {
-            Button(
-                onClick = {
-                    val parsed = textInput.toIntOrNull()
-                    if (parsed != null && parsed > 0) {
-                        onConfirm(parsed)
-                    } else {
-                        isError = true
-                    }
-                },
-                shape = RoundedCornerShape(16.dp),
-            ) {
-                Text("Set Target")
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Cancel")
-            }
-        },
-        shape = RoundedCornerShape(24.dp),
-    )
-}
-
-// ── Circular Counter ────────────────────────────────────────────────────────
-
-@Composable
-private fun CircularCounter(
+private fun TasbihCircularDisplay(
     count: Int,
-    progress: Float,
-    isComplete: Boolean,
     maxCount: Int,
     isInfinite: Boolean,
+    isComplete: Boolean,
+    progress: Float,
     modifier: Modifier = Modifier,
 ) {
-    val primaryColor  = MaterialTheme.colorScheme.primary
-    val trackColor    = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)
-    val completeColor = MaterialTheme.colorScheme.secondary
+    val ringColor by animateColorAsState(
+        targetValue = if (isComplete) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.primary,
+        label = "ringColor",
+    )
+    val beadInactiveColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.18f)
+    val beadActiveColor = MaterialTheme.colorScheme.secondary
 
     Box(
-        modifier = modifier.size(210.dp),
         contentAlignment = Alignment.Center,
+        modifier = modifier
+            .size(240.dp)
+            .padding(8.dp),
     ) {
-        // Arc / Ring Canvas
+        // 33-Bead Circular Ring + Smooth Progress Arc
         Canvas(modifier = Modifier.fillMaxSize()) {
-            val strokeWidth = 14.dp.toPx()
-            val inset       = strokeWidth / 2f
-            val arcSize     = Size(size.width - strokeWidth, size.height - strokeWidth)
-            val topLeft     = Offset(inset, inset)
+            val strokeWidth = 8.dp.toPx()
+            val arcRadius = (size.minDimension - strokeWidth) / 2f
+            val centerOffset = Offset(size.width / 2f, size.height / 2f)
 
-            // Background track
-            drawArc(
-                color      = trackColor,
-                startAngle = -90f,
-                sweepAngle = 360f,
-                useCenter  = false,
-                topLeft    = topLeft,
-                size       = arcSize,
-                style      = Stroke(width = strokeWidth, cap = StrokeCap.Round),
+            // Background subtle track
+            drawCircle(
+                color = ringColor.copy(alpha = 0.12f),
+                radius = arcRadius,
+                center = centerOffset,
+                style = Stroke(width = strokeWidth),
             )
-            // Filled progress arc
-            if (!isInfinite) {
+
+            // 33 Islamic Prayer Beads drawn around the circumference
+            val totalBeads = 33
+            val activeBeadCount = if (isInfinite) {
+                (count % totalBeads)
+            } else {
+                (progress * totalBeads).toInt().coerceIn(0, totalBeads)
+            }
+
+            for (i in 0 until totalBeads) {
+                val angleDeg = (i * (360f / totalBeads)) - 90f
+                val angleRad = Math.toRadians(angleDeg.toDouble())
+                val beadRadius = 4.5.dp.toPx()
+                val bx = centerOffset.x + (arcRadius * Math.cos(angleRad)).toFloat()
+                val by = centerOffset.y + (arcRadius * Math.sin(angleRad)).toFloat()
+
+                val isBeadActive = i < activeBeadCount || isComplete
+                drawCircle(
+                    color = if (isBeadActive) beadActiveColor else beadInactiveColor,
+                    radius = if (isBeadActive) beadRadius * 1.15f else beadRadius,
+                    center = Offset(bx, by),
+                )
+            }
+
+            // Smooth Progress arc overlay
+            if (!isInfinite && progress > 0f) {
                 drawArc(
-                    color      = if (isComplete) completeColor else primaryColor,
+                    color = ringColor,
                     startAngle = -90f,
-                    sweepAngle = (progress * 360f).coerceIn(0f, 360f),
-                    useCenter  = false,
-                    topLeft    = topLeft,
-                    size       = arcSize,
-                    style      = Stroke(width = strokeWidth, cap = StrokeCap.Round),
+                    sweepAngle = progress * 360f,
+                    useCenter = false,
+                    topLeft = Offset(centerOffset.x - arcRadius, centerOffset.y - arcRadius),
+                    size = Size(arcRadius * 2f, arcRadius * 2f),
+                    style = Stroke(width = strokeWidth, cap = StrokeCap.Round),
                 )
             }
         }
 
-        // Count number with slide animation
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        // Counter Center Text
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+        ) {
             AnimatedContent(
                 targetState = count,
                 transitionSpec = {
-                    (slideInVertically { it } + fadeIn()) togetherWith
-                            (slideOutVertically { -it } + fadeOut())
+                    (slideInVertically { height -> height / 2 } + fadeIn()).togetherWith(
+                        slideOutVertically { height -> -height / 2 } + fadeOut()
+                    )
                 },
-                label = "count_anim",
-            ) { displayCount ->
+                label = "countAnim",
+            ) { targetCount ->
                 Text(
-                    text  = displayCount.toString(),
+                    text = "$targetCount",
                     style = MaterialTheme.typography.displayLarge.copy(
-                        fontWeight = FontWeight.ExtraBold,
-                        fontSize   = if (displayCount > 9999) 42.sp else if (displayCount > 999) 50.sp else 62.sp,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = when {
+                            targetCount >= 100000 -> 36.sp
+                            targetCount >= 10000 -> 44.sp
+                            targetCount >= 1000 -> 52.sp
+                            else -> 60.sp
+                        },
                     ),
-                    color = if (isComplete)
-                        MaterialTheme.colorScheme.secondary
-                    else
-                        MaterialTheme.colorScheme.onBackground,
+                    color = ringColor,
+                    textAlign = TextAlign.Center,
                 )
             }
+
+            Spacer(Modifier.height(2.dp))
+
             Text(
-                text  = if (isInfinite) "Free Count (∞)" else "/ $maxCount",
-                style = MaterialTheme.typography.bodyMedium.copy(
+                text = if (isInfinite) "Free Count (∞)" else "Target: $maxCount",
+                style = MaterialTheme.typography.titleSmall.copy(
                     fontWeight = FontWeight.Medium,
+                    fontSize = 13.sp,
                 ),
-                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
             )
         }
-    }
-}
-
-// ── Previews ────────────────────────────────────────────────────────────────
-@Preview(showBackground = true)
-@Composable
-private fun CounterScreenPreview() {
-    TasbihCounterTheme {
-        MainScreen(
-            onSettingsClick = {},
-            settings = TasbihSettings(),
-            onRecordIncrement = {},
-        )
     }
 }

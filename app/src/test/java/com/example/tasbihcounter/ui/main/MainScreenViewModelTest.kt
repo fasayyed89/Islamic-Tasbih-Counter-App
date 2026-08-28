@@ -7,12 +7,13 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Test
 
 class MainScreenViewModelTest {
+
   @Test
   fun initialCount_isZero_andDefaultPreset33() = runTest {
     val viewModel = MainScreenViewModel()
     assertEquals(0, viewModel.uiState.value.count)
-    assertEquals(TasbihPreset.COUNT_33, viewModel.uiState.value.selectedPreset)
     assertEquals(33, viewModel.uiState.value.maxCount)
+    assertEquals(5, viewModel.uiState.value.selectedSlotIndex)
     assertFalse(viewModel.uiState.value.showCelebration)
     assertFalse(viewModel.uiState.value.fullScreenTapMode)
     assertFalse(viewModel.uiState.value.showHistoryDialog)
@@ -31,7 +32,7 @@ class MainScreenViewModelTest {
   @Test
   fun increment_reachesTarget_triggersCelebration() = runTest {
     val viewModel = MainScreenViewModel()
-    viewModel.selectPreset(TasbihPreset.COUNT_3)
+    viewModel.selectPresetSlot(0, 3) // slot 0, target 3
     
     // Tap 1 and 2
     assertFalse(viewModel.increment())
@@ -53,9 +54,9 @@ class MainScreenViewModelTest {
   @Test
   fun customPreset_setsTargetAndReachesCelebration() = runTest {
     val viewModel = MainScreenViewModel()
-    viewModel.setCustomTarget(2)
+    viewModel.selectCustom(2)
     assertEquals(2, viewModel.uiState.value.maxCount)
-    assertEquals(TasbihPreset.CUSTOM, viewModel.uiState.value.selectedPreset)
+    assertTrue(viewModel.uiState.value.isCustom)
     
     assertFalse(viewModel.increment())
     val reached = viewModel.increment()
@@ -63,6 +64,24 @@ class MainScreenViewModelTest {
     assertEquals(2, viewModel.uiState.value.count)
     assertTrue(viewModel.uiState.value.isComplete)
     assertTrue(viewModel.uiState.value.showCelebration)
+  }
+
+  @Test
+  fun selectInfinity_setsInfiniteMode() = runTest {
+    val viewModel = MainScreenViewModel()
+    viewModel.selectInfinity()
+    assertTrue(viewModel.uiState.value.isInfinite)
+    assertEquals(Int.MAX_VALUE, viewModel.uiState.value.maxCount)
+  }
+
+  @Test
+  fun editSlotDialog_opensAndDismisses() = runTest {
+    val viewModel = MainScreenViewModel()
+    assertEquals(null, viewModel.uiState.value.editingSlotIndex)
+    viewModel.openEditSlotDialog(3)
+    assertEquals(3, viewModel.uiState.value.editingSlotIndex)
+    viewModel.dismissEditSlotDialog()
+    assertEquals(null, viewModel.uiState.value.editingSlotIndex)
   }
 
   @Test
@@ -86,16 +105,6 @@ class MainScreenViewModelTest {
   }
 
   @Test
-  fun selectPreset_allPresets() = runTest {
-    val viewModel = MainScreenViewModel()
-    val expected = listOf(3, 5, 7, 10, 11, 33, 40, 70, 92, 100, 120, 313, Int.MAX_VALUE, 500)
-    TasbihPreset.entries.forEachIndexed { index, preset ->
-      viewModel.selectPreset(preset)
-      assertEquals(expected[index], viewModel.uiState.value.maxCount)
-    }
-  }
-
-  @Test
   fun decrement_decreasesCount() = runTest {
     val viewModel = MainScreenViewModel()
     viewModel.increment()
@@ -114,7 +123,7 @@ class MainScreenViewModelTest {
   @Test
   fun reset_setsCountToZeroAndDismissesCelebration() = runTest {
     val viewModel = MainScreenViewModel()
-    viewModel.selectPreset(TasbihPreset.COUNT_3)
+    viewModel.selectPresetSlot(0, 3)
     viewModel.increment()
     viewModel.increment()
     viewModel.increment() // Triggers celebration

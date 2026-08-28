@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.tasbihcounter.data.CelebrationEffect
+import com.example.tasbihcounter.data.IslamicBackground
 import com.example.tasbihcounter.data.SettingsRepository
 import com.example.tasbihcounter.data.TasbihSettings
 import com.example.tasbihcounter.theme.TasbihTheme
@@ -21,6 +22,8 @@ class SettingsViewModel(private val repo: SettingsRepository) : ViewModel() {
 
     fun setTheme(theme: TasbihTheme) = repo.setTheme(theme)
 
+    fun setBackground(background: IslamicBackground) = repo.setBackground(background)
+
     fun setHaptic(enabled: Boolean) = repo.setHaptic(enabled)
 
     fun setSound(enabled: Boolean) = repo.setSound(enabled)
@@ -30,6 +33,10 @@ class SettingsViewModel(private val repo: SettingsRepository) : ViewModel() {
     fun setKeepScreenOn(enabled: Boolean) = repo.setKeepScreenOn(enabled)
 
     fun setCelebrationEffect(effect: CelebrationEffect) = repo.setCelebrationEffect(effect)
+
+    fun updatePresetSlot(index: Int, target: Int) = repo.updatePresetSlot(index, target)
+
+    fun resetPresetSlots() = repo.resetPresetSlots()
 
     fun resetHistory() = repo.resetHistory()
 
