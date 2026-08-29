@@ -1,0 +1,47 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="44dp"
+    android:height="36dp"
+    android:viewportWidth="44"
+    android:viewportHeight="36">
+    <!-- Antique Gold Arabesque Filigree Ornament -->
+    <path
+        android:pathData="M2,4 C10,2 18,6 20,14 C22,22 14,32 4,32"
+        android:strokeWidth="1.5"
+        android:strokeColor="#C5A059"
+        android:strokeLineCap="round"/>
+    
+    <path
+        android:pathData="M6,8 C16,6 24,12 24,18 C24,24 16,30 8,28"
+        android:strokeWidth="1.2"
+        android:strokeColor="#997A15"
+        android:strokeLineCap="round"/>
+
+    <path
+        android:pathData="M14,10 C18,8 20,12 18,14 C16,16 12,14 14,10 Z"
+        android:fillColor="#C5A059"
+        android:strokeWidth="0.5"
+        android:strokeColor="#997A15"/>
+
+    <path
+        android:pathData="M16,22 C20,20 22,24 20,26 C18,28 14,26 16,22 Z"
+        android:fillColor="#C5A059"
+        android:strokeWidth="0.5"
+        android:strokeColor="#997A15"/>
+
+    <path
+        android:pathData="M10,18 C10,16.5 11.5,15 13,15 C14.5,15 16,16.5 16,18 C16,19.5 14.5,21 13,21 C11.5,21 10,19.5 10,18 Z"
+        android:fillColor="#E5C158"
+        android:strokeWidth="0.8"
+        android:strokeColor="#997A15"/>
+
+    <path
+        android:pathData="M38,4 L38,32"
+        android:strokeWidth="1.2"
+        android:strokeColor="#C5A059"/>
+    
+    <path
+        android:pathData="M38,8 L40,8 M38,13 L40,13 M38,18 L40,18 M38,23 L40,23 M38,28 L40,28"
+        android:strokeWidth="1.2"
+        android:strokeColor="#997A15"
+        android:strokeLineCap="round"/>
+</vector>

@@ -6,24 +6,21 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
-/**
- * Represents the selected target mode in the Tasbih Counter.
- */
 sealed interface TargetMode {
     data class PresetSlot(val slotIndex: Int, val target: Int) : TargetMode
-    data object Infinity : TargetMode
     data class Custom(val target: Int) : TargetMode
+    data object Infinity : TargetMode
 }
 
 data class CounterUiState(
     val count: Int = 0,
-    val targetMode: TargetMode = TargetMode.PresetSlot(slotIndex = 5, target = 33), // default 33
-    val customTarget: Int = 500,
-    val fullScreenTapMode: Boolean = false,
+    val targetMode: TargetMode = TargetMode.PresetSlot(5, 33),
+    val customTarget: Int = 100,
     val showCelebration: Boolean = false,
+    val showHistoryDialog: Boolean = false,
     val showCustomTargetDialog: Boolean = false,
     val editingSlotIndex: Int? = null,
-    val showHistoryDialog: Boolean = false,
+    val fullScreenTapMode: Boolean = false,
 ) {
     val maxCount: Int
         get() = when (targetMode) {
@@ -93,33 +90,46 @@ class MainScreenViewModel : ViewModel() {
         }
     }
 
-    fun selectPresetSlot(slotIndex: Int, target: Int) {
+    fun selectPresetSlot(slotIndex: Int, target: Int): Boolean {
+        var didReset = false
         _uiState.update { state ->
+            val shouldReset = state.count >= target
+            if (shouldReset) didReset = true
             state.copy(
+                count = if (shouldReset) 0 else state.count,
                 targetMode = TargetMode.PresetSlot(slotIndex, target),
+                showCelebration = false,
                 showCustomTargetDialog = false,
             )
         }
+        return didReset
     }
 
     fun selectInfinity() {
         _uiState.update { state ->
             state.copy(
                 targetMode = TargetMode.Infinity,
+                showCelebration = false,
                 showCustomTargetDialog = false,
             )
         }
     }
 
-    fun selectCustom(target: Int) {
+    fun selectCustom(target: Int): Boolean {
         val valid = target.coerceIn(1, 999999)
+        var didReset = false
         _uiState.update { state ->
+            val shouldReset = state.count >= valid
+            if (shouldReset) didReset = true
             state.copy(
+                count = if (shouldReset) 0 else state.count,
                 targetMode = TargetMode.Custom(valid),
                 customTarget = valid,
+                showCelebration = false,
                 showCustomTargetDialog = false,
             )
         }
+        return didReset
     }
 
     fun openCustomTargetDialog() {

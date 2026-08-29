@@ -1,12 +1,14 @@
 package com.example.tasbihcounter.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 
-/** The four selectable Islamic visual themes. */
+/** Selectable Islamic visual themes. */
 enum class TasbihTheme(val displayName: String, val arabicName: String) {
     EMERALD_MOSQUE("Emerald Mosque", "المسجد الزمردي"),
     DESERT_DUSK("Desert Dusk", "غروب الصحراء"),
@@ -124,17 +126,53 @@ private val RoseDarkColors = darkColorScheme(
     onPrimaryContainer = RoseOnContainerDark,
 )
 
+/** Generates a custom dynamic theme matching any chosen hex color. */
+fun buildCustomColorScheme(primaryColor: Color, darkTheme: Boolean): ColorScheme {
+    return if (darkTheme) {
+        darkColorScheme(
+            primary          = primaryColor,
+            onPrimary        = Color.White,
+            secondary        = Color(0xFFD4AF37),
+            onSecondary      = Color.Black,
+            background       = Color(0xFF121212),
+            surface          = Color(0xFF1E1E1E),
+            onBackground     = Color.White,
+            onSurface        = Color.White,
+            primaryContainer = primaryColor.copy(alpha = 0.35f),
+            onPrimaryContainer = Color.White,
+        )
+    } else {
+        lightColorScheme(
+            primary          = primaryColor,
+            onPrimary        = Color.White,
+            secondary        = Color(0xFFB8860B),
+            onSecondary      = Color.White,
+            background       = Color(0xFFF9FBF9),
+            surface          = Color.White,
+            onBackground     = Color(0xFF1E1E1E),
+            onSurface        = Color(0xFF1E1E1E),
+            primaryContainer = primaryColor.copy(alpha = 0.18f),
+            onPrimaryContainer = primaryColor,
+        )
+    }
+}
+
 @Composable
 fun TasbihCounterTheme(
     selectedTheme: TasbihTheme = TasbihTheme.EMERALD_MOSQUE,
+    customPrimaryColor: Long? = null,
     darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit,
 ) {
-    val colorScheme = when (selectedTheme) {
-        TasbihTheme.EMERALD_MOSQUE -> if (darkTheme) EmeraldDarkColors else EmeraldLightColors
-        TasbihTheme.DESERT_DUSK   -> if (darkTheme) DesertDarkColors  else DesertLightColors
-        TasbihTheme.MIDNIGHT_BLUE -> if (darkTheme) MidnightDarkColors else MidnightLightColors
-        TasbihTheme.ROSE_GARDEN   -> if (darkTheme) RoseDarkColors    else RoseLightColors
+    val colorScheme = if (customPrimaryColor != null) {
+        buildCustomColorScheme(Color(customPrimaryColor.toInt()), darkTheme)
+    } else {
+        when (selectedTheme) {
+            TasbihTheme.EMERALD_MOSQUE -> if (darkTheme) EmeraldDarkColors else EmeraldLightColors
+            TasbihTheme.DESERT_DUSK   -> if (darkTheme) DesertDarkColors  else DesertLightColors
+            TasbihTheme.MIDNIGHT_BLUE -> if (darkTheme) MidnightDarkColors else MidnightLightColors
+            TasbihTheme.ROSE_GARDEN   -> if (darkTheme) RoseDarkColors    else RoseLightColors
+        }
     }
     MaterialTheme(
         colorScheme = colorScheme,
