@@ -667,6 +667,12 @@ fun V2MainScreen(
                             }
                         }
                     }
+
+                    // ── Celebration Particle Overlay Rendered in Front of the Modal Card ──
+                    CelebrationParticleOverlay(
+                        effect = settings.celebrationEffect,
+                        modifier = Modifier.fillMaxSize(),
+                    )
                 }
             }
         }
