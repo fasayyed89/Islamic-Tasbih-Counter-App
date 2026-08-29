@@ -16,4 +16,5 @@ local.properties
 .kotlin/
 *.mp4
 *.apk
+!docs/*.apk
 *.txt
