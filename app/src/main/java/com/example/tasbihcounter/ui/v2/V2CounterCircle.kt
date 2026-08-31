@@ -24,7 +24,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -58,8 +62,8 @@ fun V2CounterCircle(
     modifier: Modifier = Modifier,
 ) {
     // Eco-Friendly Tap Pulse Animation on Count Increment (Stops completely when idle)
-    var isTapped by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(false) }
-    androidx.compose.runtime.LaunchedEffect(count) {
+    var isTapped by remember { mutableStateOf(false) }
+    LaunchedEffect(count) {
         if (count > 0) {
             isTapped = true
             kotlinx.coroutines.delay(180)
