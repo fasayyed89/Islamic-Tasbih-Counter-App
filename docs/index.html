@@ -9,7 +9,16 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Tasbih">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='48' fill='%231B5E20'/><circle cx='50' cy='50' r='38' stroke='%23D4AF37' stroke-width='4' fill='none' stroke-dasharray='6 6'/><path d='M50 25 A20 20 0 0 0 50 65 A16 16 0 0 1 50 25 Z' fill='%23D4AF37'/><polygon points='62,32 64,38 70,38 65,42 67,48 62,44 57,48 59,42 54,38 60,38' fill='%23D4AF37'/></svg>">
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XV77RQ3ZCF"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-XV77RQ3ZCF');
+  </script>
+
   <style>
     :root {
       --primary: #1B5E20;
@@ -370,12 +379,17 @@
     function trackDownload(version) {
       console.log('Download Event:', version);
       
-      // 1. Google Analytics 4 Event (if active)
+      // 1. Google Analytics 4 Event Tracking
       if (typeof gtag === 'function') {
-        gtag('event', 'download', {
-          event_category: 'APK',
-          event_label: version,
-          value: 1
+        gtag('event', 'file_download', {
+          file_name: version === 'v2_luxury_apk' ? 'IslamicTasbih_V2.apk' : 'IslamicTasbih.apk',
+          file_extension: 'apk',
+          version: version,
+          event_category: 'APK_Download',
+          event_label: version
+        });
+        gtag('event', 'apk_download', {
+          version_name: version
         });
       }
       
