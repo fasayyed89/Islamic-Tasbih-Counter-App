@@ -57,16 +57,19 @@ fun V2CounterCircle(
     allahSizeRatio: Float,
     modifier: Modifier = Modifier,
 ) {
-    // Divine Heartbeat Animation for "اللَّه"
-    val heartbeatTransition = rememberInfiniteTransition(label = "v2AllahHeartbeat")
-    val pulseScale by heartbeatTransition.animateFloat(
-        initialValue = 0.94f,
-        targetValue = 1.08f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 1200, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse,
-        ),
-        label = "pulseScale",
+    // Eco-Friendly Tap Pulse Animation on Count Increment (Stops completely when idle)
+    var isTapped by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(false) }
+    androidx.compose.runtime.LaunchedEffect(count) {
+        if (count > 0) {
+            isTapped = true
+            kotlinx.coroutines.delay(180)
+            isTapped = false
+        }
+    }
+    val pulseScale by androidx.compose.animation.core.animateFloatAsState(
+        targetValue = if (isTapped) 1.08f else 1.0f,
+        animationSpec = tween(durationMillis = 180, easing = FastOutSlowInEasing),
+        label = "v2AllahPulse",
     )
 
     // Target-Adaptive Dynamic Beads Count
@@ -298,10 +301,10 @@ fun V2CounterCircle(
                     ),
                     color = config.allahCalligraphyColor,
                     textAlign = TextAlign.Center,
-                    modifier = Modifier.graphicsLayer(
-                        scaleX = pulseScale,
-                        scaleY = pulseScale,
-                    ),
+                    modifier = Modifier.graphicsLayer {
+                        scaleX = pulseScale
+                        scaleY = pulseScale
+                    },
                 )
                 Spacer(Modifier.height(4.dp))
             }

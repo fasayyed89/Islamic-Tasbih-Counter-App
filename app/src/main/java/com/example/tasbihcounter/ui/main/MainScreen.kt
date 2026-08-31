@@ -1431,16 +1431,19 @@ private fun TasbihCircularDisplay(
     val beadInactiveColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.20f)
     val beadActiveColor = MaterialTheme.colorScheme.secondary
 
-    // ── Divine Heartbeat Pulse Animation for "اللَّه" ─────────────────
-    val heartbeatTransition = rememberInfiniteTransition(label = "allahHeartbeat")
-    val pulseScale by heartbeatTransition.animateFloat(
-        initialValue = 0.92f,
-        targetValue = 1.10f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 1100, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse,
-        ),
-        label = "pulseScale",
+    // Eco-Friendly Tap Pulse Animation on Count Increment (Stops completely when idle)
+    var isTapped by remember { mutableStateOf(false) }
+    LaunchedEffect(count) {
+        if (count > 0) {
+            isTapped = true
+            kotlinx.coroutines.delay(180)
+            isTapped = false
+        }
+    }
+    val pulseScale by androidx.compose.animation.core.animateFloatAsState(
+        targetValue = if (isTapped) 1.08f else 1.0f,
+        animationSpec = tween(durationMillis = 180, easing = FastOutSlowInEasing),
+        label = "allahPulse",
     )
 
     // ── Target-Adaptive Beads Count ──────────────────────────────────
@@ -1571,10 +1574,10 @@ private fun TasbihCircularDisplay(
                     ),
                     color = MaterialTheme.colorScheme.secondary,
                     textAlign = TextAlign.Center,
-                    modifier = Modifier.graphicsLayer(
-                        scaleX = pulseScale,
-                        scaleY = pulseScale,
-                    ),
+                    modifier = Modifier.graphicsLayer {
+                        scaleX = pulseScale
+                        scaleY = pulseScale
+                    },
                 )
 
                 Spacer(Modifier.height(4.dp))

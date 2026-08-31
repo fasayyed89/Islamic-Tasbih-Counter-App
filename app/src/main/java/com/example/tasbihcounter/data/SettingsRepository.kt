@@ -145,7 +145,7 @@ class DefaultSettingsRepository(context: Context) : SettingsRepository {
             hapticEnabled = prefs.getBoolean(KEY_HAPTIC, true),
             soundEnabled = prefs.getBoolean(KEY_SOUND, true),
             volumeButtonEnabled = prefs.getBoolean(KEY_VOLUME, true),
-            keepScreenOn = prefs.getBoolean(KEY_KEEP_SCREEN_ON, true),
+            keepScreenOn = prefs.getBoolean(KEY_KEEP_SCREEN_ON, false),
             celebrationEffect = celebrationEffect,
             customPresetSlots = loadCustomPresetSlots(),
             todayCount = prefs.getInt(todayKey, 0),
