@@ -233,7 +233,7 @@ internal fun SettingsScreenContent(
                             color = MaterialTheme.colorScheme.primary,
                         ) {
                             Text(
-                                text = "v2.0.1 (Build 3)",
+                                text = "v2.0.2 (Build 4)",
                                 style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
                                 color = MaterialTheme.colorScheme.onPrimary,
                                 modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
@@ -693,7 +693,7 @@ internal fun SettingsScreenContent(
                             color = MaterialTheme.colorScheme.primary,
                         )
                         Text(
-                            text = "Version 2.0.1 (Build 3) • 100% Offline",
+                            text = "Version 2.0.2 (Build 4) • 100% Offline",
                             style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
                             color = MaterialTheme.colorScheme.onSurface,
                         )
