@@ -52,6 +52,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -671,7 +672,7 @@ internal fun SettingsScreenContent(
 
             item {
                 Card(
-                    shape = RoundedCornerShape(18.dp),
+                    shape = RoundedCornerShape(20.dp),
                     colors = CardDefaults.cardColors(
                         containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.55f)
                     ),
@@ -682,9 +683,9 @@ internal fun SettingsScreenContent(
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(16.dp),
+                            .padding(18.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(4.dp),
+                        verticalArrangement = Arrangement.spacedBy(6.dp),
                     ) {
                         Text(
                             text = "📿 Islamic Tasbih Counter",
@@ -701,6 +702,37 @@ internal fun SettingsScreenContent(
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.secondary,
                         )
+
+                        Spacer(Modifier.height(4.dp))
+
+                        Text(
+                            text = "🌍 Global Ummah Family: You are reciting together with believers worldwide.",
+                            style = MaterialTheme.typography.bodySmall.copy(fontSize = 12.sp),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            textAlign = TextAlign.Center,
+                        )
+
+                        Spacer(Modifier.height(4.dp))
+
+                        OutlinedButton(
+                            onClick = {
+                                try {
+                                    val intent = android.content.Intent(
+                                        android.content.Intent.ACTION_VIEW,
+                                        android.net.Uri.parse("https://fasayyed89.github.io/Islamic-Tasbih-Counter-App/")
+                                    )
+                                    context.startActivity(intent)
+                                } catch (_: Throwable) {}
+                            },
+                            shape = RoundedCornerShape(12.dp),
+                            modifier = Modifier.fillMaxWidth(),
+                        ) {
+                            Text(
+                                text = "🌐 Visit Web Portal & Community",
+                                style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
+                                color = MaterialTheme.colorScheme.primary,
+                            )
+                        }
                     }
                 }
             }
