@@ -719,7 +719,7 @@ internal fun SettingsScreenContent(
                                 try {
                                     val intent = android.content.Intent(
                                         android.content.Intent.ACTION_VIEW,
-                                        android.net.Uri.parse("https://fasayyed89.github.io/Islamic-Tasbih-Counter-App/")
+                                        android.net.Uri.parse("https://ummah-digital.github.io/Islamic-Tasbih-Counter-App/")
                                     )
                                     context.startActivity(intent)
                                 } catch (_: Throwable) {}
