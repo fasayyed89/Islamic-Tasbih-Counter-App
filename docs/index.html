@@ -137,33 +137,25 @@
 
   <div class="container">
 
-    <!-- Interactive Live Web Counter Demo -->
-    <div class="counter-section" id="webCounter">
-      <div class="counter-title">✨ Live Web & iPhone Counter</div>
-      <div class="counter-subtitle">Try it right here in your browser, or install as an iPhone Web App</div>
-
-      <!-- Presets -->
-      <div class="presets-grid">
-        <button class="preset-pill" onclick="setPreset(33, this)">33</button>
-        <button class="preset-pill" onclick="setPreset(100, this)">100</button>
-        <button class="preset-pill" onclick="setPreset(313, this)">313</button>
-        <button class="preset-pill" onclick="setPreset(1000, this)">1,000</button>
-        <button class="preset-pill" onclick="setPreset(Infinity, this)">∞</button>
+    <!-- Standalone Web App Showcase & Launcher -->
+    <div class="counter-section" id="webCounter" style="background: linear-gradient(135deg, #1C281F, #0D2818); color: white; border: 2px solid var(--gold); box-shadow: 0 12px 35px rgba(0,0,0,0.25);">
+      <div style="font-size: 36px; margin-bottom: 6px;">📱✨</div>
+      <div class="counter-title" style="color: var(--gold-light); font-size: 22px;">Dedicated Full-Featured Web & iPhone App</div>
+      <div class="counter-subtitle" style="color: rgba(255,255,255,0.85); max-width: 600px; margin: 0 auto 18px; font-size: 14px;">
+        Experience 100% of the Android app directly in your browser — with <strong>7 Islamic Themes</strong>, <strong>14 Sunnah Presets</strong>, <strong>Daily Wird History Charts</strong>, and <strong>Full-Screen Tap Mode</strong>!
       </div>
 
-      <!-- Circle Counter -->
-      <div class="counter-circle">
-        <div class="count-display" id="countDisplay">0</div>
-        <div class="target-display" id="targetDisplay">/ 33</div>
+      <div style="display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; margin-bottom: 22px;">
+        <span class="badge">🎨 7 Themes</span>
+        <span class="badge">🎯 14 Presets + Custom</span>
+        <span class="badge">📊 Daily Wird Graph</span>
+        <span class="badge">🔊 Bead Sound & Haptics</span>
+        <span class="badge">📱 Full-Screen Tap</span>
       </div>
 
-      <!-- Controls -->
-      <div class="counter-controls">
-        <button class="btn-minor" onclick="decrement()" title="Minus">−</button>
-        <button class="btn-count" onclick="increment()" title="Count +1">+</button>
-        <button class="btn-minor" onclick="resetCounter()" title="Reset">🔄</button>
-      </div>
-      <p style="font-size: 12px; color: var(--text-muted); margin-top: 12px;">🔊 Bead click sound & haptics enabled</p>
+      <a href="./app.html" class="btn btn-ios" onclick="trackDownload('web_app_open')" style="font-size: 17px; padding: 16px 36px; text-decoration: none; display: inline-flex; align-items: center; gap: 10px;">
+        <span>🚀</span> Launch Full-Screen Web App Now ↗
+      </a>
     </div>
 
     <!-- Feature Grid -->
@@ -309,140 +301,6 @@
   </footer>
 
   <script>
-    let count = 0;
-    let target = 33;
-
-    // Web Audio Synthesized Bead Click Sound
-    const AudioContext = window.AudioContext || window.webkitAudioContext;
-    let audioCtx = null;
-
-    function playBeadClick() {
-      try {
-        if (!audioCtx) audioCtx = new AudioContext();
-        if (audioCtx.state === 'suspended') audioCtx.resume();
-        
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(800, audioCtx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(150, audioCtx.currentTime + 0.025);
-        gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.025);
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start();
-        osc.stop(audioCtx.currentTime + 0.025);
-      } catch (e) {}
-    }
-
-    function triggerHaptic(strong = false) {
-      if (navigator.vibrate) {
-        if (strong) {
-          navigator.vibrate([180, 80, 180, 80, 200, 80, 450]);
-        } else {
-          navigator.vibrate(35);
-        }
-      }
-    }
-
-    function updateUI() {
-      document.getElementById('countDisplay').innerText = count;
-      document.getElementById('targetDisplay').innerText = target === Infinity ? 'Free (∞)' : `/ ${target}`;
-    }
-
-    function setPreset(val, el) {
-      target = val;
-      document.querySelectorAll('.preset-pill').forEach(p => p.classList.remove('active'));
-      if (el) el.classList.add('active');
-      playBeadClick();
-      triggerHaptic();
-      updateUI();
-    }
-
-    function increment() {
-      count++;
-      playBeadClick();
-      if (target !== Infinity && count === target) {
-        triggerHaptic(true);
-        triggerCelebration();
-      } else {
-        triggerHaptic(false);
-      }
-      updateUI();
-    }
-
-    function decrement() {
-      if (count > 0) count--;
-      playBeadClick();
-      triggerHaptic(false);
-      updateUI();
-    }
-
-    function resetCounter() {
-      if (count > 0 && confirm("Reset count to 0?")) {
-        count = 0;
-        playBeadClick();
-        triggerHaptic(false);
-        updateUI();
-      }
-    }
-
-    // Confetti Animation Engine
-    function triggerCelebration() {
-      const canvas = document.getElementById('celebrationCanvas');
-      const ctx = canvas.getContext('2d');
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-      canvas.style.display = 'block';
-
-      const particles = [];
-      const colors = ['#D4AF37', '#1B5E20', '#E53935', '#00ACC1', '#FB8C00', '#8E24AA', '#FFFFFF'];
-
-      for (let i = 0; i < 90; i++) {
-        particles.push({
-          x: canvas.width / 2,
-          y: canvas.height * 0.4,
-          vx: (Math.random() - 0.5) * 14,
-          vy: -Math.random() * 12 - 3,
-          size: Math.random() * 8 + 6,
-          color: colors[Math.floor(Math.random() * colors.length)],
-          rotation: Math.random() * 360,
-          rotationSpeed: (Math.random() - 0.5) * 10,
-          alpha: 1
-        });
-      }
-
-      let frame = 0;
-      function animate() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        particles.forEach(p => {
-          p.x += p.vx;
-          p.y += p.vy;
-          p.vy += 0.35; // gravity
-          p.rotation += p.rotationSpeed;
-          p.alpha -= 0.008;
-
-          if (p.alpha > 0) {
-            ctx.save();
-            ctx.translate(p.x, p.y);
-            ctx.rotate(p.rotation * Math.PI / 180);
-            ctx.fillStyle = p.color;
-            ctx.globalAlpha = Math.max(0, p.alpha);
-            ctx.fillRect(-p.size / 2, -p.size / 4, p.size, p.size / 2);
-            ctx.restore();
-          }
-        });
-
-        frame++;
-        if (frame < 140) {
-          requestAnimationFrame(animate);
-        } else {
-          canvas.style.display = 'none';
-        }
-      }
-      animate();
-    }
-
     // Global Download & Interaction Analytics Tracker
     function trackDownload(version) {
       console.log('Download Event:', version);
