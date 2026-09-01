@@ -129,8 +129,8 @@
       <a href="./IslamicTasbih.apk?v=1.0.0" download="IslamicTasbih.apk" class="btn btn-android" onclick="trackDownload('v1_classic_apk')">
         <span>📥</span> Download V1.0 APK (Classic • 1.3 MB)
       </a>
-      <a href="#webCounter" class="btn btn-ios" onclick="trackDownload('web_app_open')">
-        <span>📱</span> Use Web / iPhone App
+      <a href="./app.html" class="btn btn-ios" onclick="trackDownload('web_app_open')">
+        <span>📱</span> Launch Web / iPhone App ↗
       </a>
     </div>
   </header>
@@ -441,6 +441,8 @@
         }
       }
       animate();
+    }
+
     // Global Download & Interaction Analytics Tracker
     function trackDownload(version) {
       console.log('Download Event:', version);
