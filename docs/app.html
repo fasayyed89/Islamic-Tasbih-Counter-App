@@ -3,278 +3,445 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Islamic Tasbih App • سبحة إلكترونية</title>
-  <meta name="description" content="Full-featured standalone Islamic Tasbih & Dhikr web app with 7 themes, 14 presets, bead sounds, haptics, history chart, and celebrations.">
+  <title>Islamic Tasbih Counter • سبحة إلكترونية</title>
+  <meta name="description" content="100% Offline Islamic Prayer Counter with 7 Luxury Themes, 14 Sunnah Presets, Real Bead Sounds, Haptics & Wird History.">
+  <link rel="manifest" href="./manifest.json">
   <meta name="theme-color" content="#1B5E20">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Tasbih">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='48' fill='%231B5E20'/%3E%3Ccircle cx='50' cy='50' r='38' stroke='%23D4AF37' stroke-width='4' fill='none' stroke-dasharray='6 6'/%3E%3Cpath d='M50 25 A20 20 0 0 0 50 65 A16 16 0 0 1 50 25 Z' fill='%23D4AF37'/%3E%3Cpolygon points='62,32 64,38 70,38 65,42 67,48 62,44 57,48 59,42 54,38 60,38' fill='%23D4AF37'/%3E%3C/svg%3E">
+  
   <style>
     :root {
-      --bg-start: #0D2818;
-      --bg-end: #04120B;
+      --bg-top: #0D2818;
+      --bg-bottom: #04120B;
       --primary: #2E7D32;
+      --primary-light: #4CAF50;
       --gold: #D4AF37;
       --gold-light: #F3E5AB;
+      --gold-dark: #997A15;
+      --card-bg: rgba(255, 255, 255, 0.07);
+      --card-border: rgba(212, 175, 55, 0.3);
       --text: #FFFFFF;
       --text-muted: #A3B899;
-      --surface: rgba(255, 255, 255, 0.08);
-      --surface-border: rgba(212, 175, 55, 0.3);
-      --accent: #D4AF37;
-      --circle-bg: radial-gradient(circle, #1B432C 0%, #0B2215 100%);
+      --circle-core: radial-gradient(circle, #1B4D2E 0%, #0B2516 100%);
+      --bead-active: #D4AF37;
+      --bead-inactive: rgba(255, 255, 255, 0.15);
     }
 
-    /* Handcrafted 7 Themes */
-    body.theme-emerald { --bg-start: #0D2818; --bg-end: #04120B; --primary: #2E7D32; --gold: #D4AF37; --gold-light: #F3E5AB; --circle-bg: radial-gradient(circle, #1B432C, #0B2215); }
-    body.theme-desert { --bg-start: #2B1506; --bg-end: #120700; --primary: #D84315; --gold: #FFA726; --gold-light: #FFE082; --circle-bg: radial-gradient(circle, #4E260D, #220F04); }
-    body.theme-midnight { --bg-start: #0A192F; --bg-end: #020813; --primary: #1976D2; --gold: #64B5F6; --gold-light: #BBDEFB; --circle-bg: radial-gradient(circle, #132D54, #061122); }
-    body.theme-rose { --bg-start: #2B0D18; --bg-end: #13030A; --primary: #AD1457; --gold: #F48FB1; --gold-light: #FCE4EC; --circle-bg: radial-gradient(circle, #4A172B, #1C050F); }
-    body.theme-marble { --bg-start: #1A1A24; --bg-end: #0D0D13; --primary: #E0A96D; --gold: #ECC88B; --gold-light: #FAF0E6; --circle-bg: radial-gradient(circle, #2C2C3C, #14141E); }
-    body.theme-celestial { --bg-start: #061A2B; --bg-end: #010A12; --primary: #00ACC1; --gold: #4DD0E1; --gold-light: #E0F7FA; --circle-bg: radial-gradient(circle, #0F3352, #041424); }
-    body.theme-neon { --bg-start: #0A0A0A; --bg-end: #000000; --primary: #00E5FF; --gold: #00E5FF; --gold-light: #B2EBF2; --circle-bg: radial-gradient(circle, #141E28, #05080C); }
+    /* 7 Pixel-Perfect Themes matching Android APK */
+    body.theme-emerald {
+      --bg-top: #0D2818; --bg-bottom: #04120B; --primary: #2E7D32; --primary-light: #4CAF50; --gold: #D4AF37; --gold-light: #F3E5AB; --circle-core: radial-gradient(circle, #1B4D2E, #0B2516); --bead-active: #D4AF37;
+    }
+    body.theme-desert {
+      --bg-top: #2B1506; --bg-bottom: #120700; --primary: #D84315; --primary-light: #FF7043; --gold: #FFA726; --gold-light: #FFE082; --circle-core: radial-gradient(circle, #4E260D, #220F04); --bead-active: #FFA726;
+    }
+    body.theme-midnight {
+      --bg-top: #0A192F; --bg-bottom: #020813; --primary: #1976D2; --primary-light: #42A5F5; --gold: #64B5F6; --gold-light: #BBDEFB; --circle-core: radial-gradient(circle, #132D54, #061122); --bead-active: #64B5F6;
+    }
+    body.theme-rose {
+      --bg-top: #2B0D18; --bg-bottom: #13030A; --primary: #AD1457; --primary-light: #EC407A; --gold: #F48FB1; --gold-light: #FCE4EC; --circle-core: radial-gradient(circle, #4A172B, #1C050F); --bead-active: #F48FB1;
+    }
+    body.theme-marble {
+      --bg-top: #1A1A24; --bg-bottom: #0D0D13; --primary: #E0A96D; --primary-light: #F5CBA7; --gold: #ECC88B; --gold-light: #FAF0E6; --circle-core: radial-gradient(circle, #2C2C3C, #14141E); --bead-active: #ECC88B;
+    }
+    body.theme-celestial {
+      --bg-top: #061A2B; --bg-bottom: #010A12; --primary: #00ACC1; --primary-light: #26C6DA; --gold: #4DD0E1; --gold-light: #E0F7FA; --circle-core: radial-gradient(circle, #0F3352, #041424); --bead-active: #4DD0E1;
+    }
+    body.theme-neon {
+      --bg-top: #0A0A0A; --bg-bottom: #000000; --primary: #00E5FF; --primary-light: #18FFFF; --gold: #00E5FF; --gold-light: #B2EBF2; --circle-core: radial-gradient(circle, #141E28, #05080C); --bead-active: #00E5FF;
+    }
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; -webkit-tap-highlight-color: transparent; }
-    html, body { width: 100%; height: 100%; overflow: hidden; background: linear-gradient(180deg, var(--bg-start), var(--bg-end)); color: var(--text); user-select: none; }
+    html, body { width: 100%; height: 100%; overflow: hidden; background: linear-gradient(180deg, var(--bg-top) 0%, var(--bg-bottom) 100%); color: var(--text); user-select: none; }
 
-    .app-container { display: flex; flex-direction: column; width: 100%; height: 100%; max-width: 540px; margin: 0 auto; position: relative; }
+    .app-scaffold { display: flex; flex-direction: column; width: 100%; height: 100%; max-width: 500px; margin: 0 auto; position: relative; }
 
-    /* Header */
-    header { padding: 16px 20px 8px; display: flex; align-items: center; justify-content: space-between; z-index: 10; }
-    .app-title-box { display: flex; flex-direction: column; }
-    .bismillah-small { font-size: 13px; color: var(--gold); font-weight: 600; letter-spacing: 0.5px; }
-    .app-title { font-size: 19px; font-weight: 800; color: var(--gold-light); display: flex; align-items: center; gap: 6px; }
-    .header-icons { display: flex; align-items: center; gap: 10px; }
-    .icon-btn { background: var(--surface); border: 1px solid var(--surface-border); width: 40px; height: 40px; border-radius: 50%; color: var(--gold-light); font-size: 18px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.15s, background 0.2s; }
-    .icon-btn:active { transform: scale(0.92); }
+    /* Top App Bar */
+    .top-bar { padding: 14px 18px 8px; display: flex; align-items: center; justify-content: space-between; z-index: 20; }
+    .app-brand { display: flex; flex-direction: column; }
+    .bismillah-text { font-size: 13px; color: var(--gold); font-weight: 700; letter-spacing: 0.5px; }
+    .app-header-title { font-size: 19px; font-weight: 800; color: var(--gold-light); display: flex; align-items: center; gap: 6px; }
+    .version-pill { font-size: 10px; background: var(--gold); color: #0D2818; padding: 2px 7px; border-radius: 10px; font-weight: 800; }
 
-    /* Presets bar */
-    .presets-container { padding: 6px 16px; overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch; scrollbar-width: none; z-index: 10; }
-    .presets-container::-webkit-scrollbar { display: none; }
-    .preset-chip { display: inline-flex; align-items: center; justify-content: center; padding: 6px 14px; margin-right: 8px; background: var(--surface); border: 1px solid var(--surface-border); border-radius: 20px; font-size: 13px; font-weight: 700; color: var(--text-muted); cursor: pointer; transition: all 0.2s; }
-    .preset-chip.active { background: var(--gold); color: #0D2818; border-color: var(--gold-light); transform: scale(1.06); box-shadow: 0 4px 12px rgba(212,175,55,0.4); }
+    .app-actions { display: flex; align-items: center; gap: 8px; }
+    .action-icon-btn { background: var(--card-bg); border: 1px solid var(--card-border); width: 38px; height: 38px; border-radius: 50%; color: var(--gold-light); font-size: 17px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.15s, background 0.2s; }
+    .action-icon-btn:active { transform: scale(0.90); }
 
-    /* Counter Area */
-    .counter-wrapper { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; padding: 10px 20px; }
-    .touch-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 5; cursor: pointer; }
+    /* Offline PWA Badge Banner */
+    .offline-banner { margin: 0 16px 6px; background: rgba(0,0,0,0.35); border: 1px solid rgba(212,175,55,0.25); border-radius: 12px; padding: 5px 12px; display: flex; align-items: center; justify-content: space-between; font-size: 11px; z-index: 20; }
+    .offline-banner span { color: var(--gold-light); font-weight: 600; display: flex; align-items: center; gap: 5px; }
+    .install-pwa-btn { background: var(--gold); color: #0D2818; border: none; padding: 3px 10px; border-radius: 8px; font-size: 11px; font-weight: 800; cursor: pointer; }
 
-    .counter-ring-container { width: 270px; height: 270px; border-radius: 50%; position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; background: var(--circle-bg); border: 4px solid var(--gold); box-shadow: 0 0 35px rgba(212,175,55,0.25), inset 0 0 25px rgba(0,0,0,0.6); transition: transform 0.12s ease-out; z-index: 6; }
-    .counter-ring-container.pulse { transform: scale(0.95); }
+    /* Sunnah Presets Bar */
+    .presets-scroll { padding: 6px 16px; overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch; scrollbar-width: none; z-index: 20; }
+    .presets-scroll::-webkit-scrollbar { display: none; }
+    .preset-btn { display: inline-flex; align-items: center; justify-content: center; padding: 6px 14px; margin-right: 8px; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 20px; font-size: 13px; font-weight: 700; color: var(--text-muted); cursor: pointer; transition: all 0.2s; }
+    .preset-btn.active { background: linear-gradient(135deg, var(--gold), var(--gold-light)); color: #0D2818; border-color: #FFFFFF; transform: scale(1.05); box-shadow: 0 4px 14px rgba(212,175,55,0.45); }
 
-    .counter-svg-ring { position: absolute; top: 0; left: 0; width: 100%; height: 100%; transform: rotate(-90deg); pointer-events: none; }
-    .ring-bg { fill: none; stroke: rgba(255,255,255,0.1); stroke-width: 8; }
-    .ring-progress { fill: none; stroke: var(--gold); stroke-width: 8; stroke-linecap: round; stroke-dasharray: 816; stroke-dashoffset: 816; transition: stroke-dashoffset 0.15s ease-out; }
+    /* Active Arabic Dhikr Header */
+    .dhikr-select-bar { margin: 4px 16px; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 16px; padding: 8px 14px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; z-index: 20; }
+    .dhikr-select-bar .dhikr-main { font-size: 17px; font-weight: 800; color: var(--gold); }
+    .dhikr-select-bar .dhikr-meaning { font-size: 11px; color: var(--text-muted); }
 
-    .dhikr-arabic { font-size: 16px; color: var(--gold); font-weight: 700; margin-bottom: 2px; }
-    .count-number { font-size: 68px; font-weight: 800; color: #FFFFFF; line-height: 1; text-shadow: 0 2px 10px rgba(0,0,0,0.5); }
-    .target-label { font-size: 15px; font-weight: 600; color: var(--text-muted); margin-top: 4px; }
-    .progress-percent { font-size: 12px; font-weight: 700; color: var(--gold-light); margin-top: 2px; }
+    /* Main Counter Canvas & 3D Prayer Bead Circle */
+    .main-canvas { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; padding: 10px 16px; }
+    .fullscreen-touch-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 5; cursor: pointer; }
+
+    .bead-circle-3d { width: 280px; height: 280px; border-radius: 50%; position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; background: var(--circle-core); border: 5px solid var(--gold); box-shadow: 0 0 45px rgba(212,175,55,0.3), inset 0 0 35px rgba(0,0,0,0.7); transition: transform 0.12s cubic-bezier(0.34, 1.56, 0.64, 1); z-index: 6; }
+    .bead-circle-3d.pulse { transform: scale(0.94); }
+
+    .beads-svg-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; transform: rotate(-90deg); pointer-events: none; }
+    .track-circle { fill: none; stroke: rgba(255,255,255,0.1); stroke-width: 10; }
+    .progress-track { fill: none; stroke: var(--gold); stroke-width: 10; stroke-linecap: round; stroke-dasharray: 848; stroke-dashoffset: 848; transition: stroke-dashoffset 0.14s ease-out; }
+
+    .count-text { font-size: 72px; font-weight: 900; color: #FFFFFF; line-height: 1; text-shadow: 0 3px 12px rgba(0,0,0,0.6); font-variant-numeric: tabular-nums; }
+    .target-tag { font-size: 15px; font-weight: 700; color: var(--text-muted); margin-top: 4px; }
+    .percent-tag { font-size: 12px; font-weight: 800; color: var(--gold-light); margin-top: 2px; }
+
+    .hint-label { font-size: 11px; color: var(--text-muted); text-align: center; margin-bottom: 6px; z-index: 20; opacity: 0.85; }
 
     /* Bottom Action Controls */
-    .controls-container { padding: 12px 20px 24px; display: flex; align-items: center; justify-content: space-between; gap: 14px; z-index: 10; }
-    .btn-action { height: 54px; border-radius: 16px; font-size: 15px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; border: none; transition: transform 0.1s, opacity 0.2s; }
-    .btn-action:active { transform: scale(0.95); }
-    .btn-minor-action { width: 54px; background: var(--surface); border: 1px solid var(--surface-border); color: var(--text); font-size: 20px; }
-    .btn-primary-count { flex: 1; background: linear-gradient(135deg, var(--gold), #ECC88B); color: #0D2818; box-shadow: 0 6px 20px rgba(212,175,55,0.4); font-size: 18px; }
+    .controls-bar { padding: 8px 18px 22px; display: flex; align-items: center; justify-content: space-between; gap: 12px; z-index: 20; }
+    .btn-ctrl { height: 56px; border-radius: 18px; font-size: 15px; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; border: none; transition: transform 0.1s, opacity 0.2s; }
+    .btn-ctrl:active { transform: scale(0.92); }
+    .btn-ctrl-small { width: 56px; background: var(--card-bg); border: 1px solid var(--card-border); color: var(--text); font-size: 20px; }
+    .btn-count-big { flex: 1; background: linear-gradient(135deg, var(--gold), #ECC88B); color: #0D2818; box-shadow: 0 6px 22px rgba(212,175,55,0.45); font-size: 19px; }
 
-    .tap-hint { font-size: 12px; color: var(--text-muted); text-align: center; margin-bottom: 6px; z-index: 10; }
+    /* Modals & Dialogs */
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 18px; }
+    .modal-overlay.open { display: flex; }
+    .modal-sheet { background: linear-gradient(135deg, #1C281F, #0D2137); border: 2px solid var(--gold); border-radius: 26px; width: 100%; max-width: 440px; max-height: 88vh; overflow-y: auto; padding: 22px; color: white; box-shadow: 0 25px 60px rgba(0,0,0,0.6); }
+    .modal-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; border-bottom: 1px solid rgba(212,175,55,0.25); padding-bottom: 10px; }
+    .modal-heading { font-size: 18px; font-weight: 800; color: var(--gold); }
+    .modal-x { background: none; border: none; color: white; font-size: 24px; cursor: pointer; }
+
+    .opt-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .opt-title { font-size: 14px; font-weight: 600; }
+    .opt-desc { font-size: 11px; opacity: 0.75; margin-top: 2px; }
+
+    .toggle-switch { position: relative; display: inline-block; width: 44px; height: 24px; }
+    .toggle-switch input { opacity: 0; width: 0; height: 0; }
+    .switch-slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(255,255,255,0.2); transition: .3s; border-radius: 24px; }
+    .switch-slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .3s; border-radius: 50%; }
+    input:checked + .switch-slider { background-color: var(--gold); }
+    input:checked + .switch-slider:before { transform: translateX(20px); background-color: #0D2818; }
+
+    .themes-palette { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 10px; }
+    .theme-card-btn { padding: 10px 6px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.3); color: white; font-size: 12px; font-weight: 600; cursor: pointer; text-align: center; }
+    .theme-card-btn.active { border-color: var(--gold); background: var(--card-bg); color: var(--gold-light); font-weight: 800; }
+
+    .dhikr-choice-item { padding: 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2); margin-bottom: 8px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; }
+    .dhikr-choice-item.active { border-color: var(--gold); background: rgba(212,175,55,0.15); }
+
+    /* Milestone Dialog */
+    .celebration-wrapper { text-align: center; padding: 16px 8px; }
+    .celebration-arabic-title { font-size: 26px; font-weight: 800; color: var(--gold); margin-bottom: 6px; }
+    .celebration-desc { font-size: 14px; opacity: 0.9; margin-bottom: 20px; line-height: 1.4; }
+
+    /* iPhone Install Modal */
+    .iphone-step { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 14px; text-align: left; }
+    .step-num { width: 28px; height: 28px; border-radius: 50%; background: var(--gold); color: #0D2818; font-weight: 800; font-size: 14px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 
     #celebrationCanvas { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 9999; display: none; }
-
-    /* Modals */
-    .modal-backdrop { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.75); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
-    .modal-backdrop.show { display: flex; }
-    .modal-content { background: linear-gradient(135deg, #1C281F, #0D2137); border: 2px solid var(--gold); border-radius: 24px; width: 100%; max-width: 440px; max-height: 85vh; overflow-y: auto; padding: 24px; color: white; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
-    .modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; border-bottom: 1px solid rgba(212,175,55,0.25); padding-bottom: 12px; }
-    .modal-title { font-size: 18px; font-weight: 800; color: var(--gold); }
-    .close-btn { background: none; border: none; color: white; font-size: 24px; cursor: pointer; }
-
-    .setting-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.08); }
-    .setting-label { font-size: 14px; font-weight: 600; }
-    .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
-    .switch input { opacity: 0; width: 0; height: 0; }
-    .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(255,255,255,0.2); transition: .3s; border-radius: 24px; }
-    .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .3s; border-radius: 50%; }
-    input:checked + .slider { background-color: var(--gold); }
-    input:checked + .slider:before { transform: translateX(20px); background-color: #0D2818; }
-
-    .theme-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 12px; }
-    .theme-btn { padding: 10px 6px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.3); color: white; font-size: 12px; font-weight: 600; cursor: pointer; text-align: center; }
-    .theme-btn.active { border-color: var(--gold); background: var(--surface); color: var(--gold-light); font-weight: bold; }
-
-    .celebration-box { text-align: center; padding: 20px 10px; }
-    .celebration-arabic { font-size: 24px; font-weight: bold; color: var(--gold); margin-bottom: 8px; }
-    .celebration-msg { font-size: 15px; opacity: 0.9; margin-bottom: 20px; }
   </style>
 </head>
 <body class="theme-emerald">
 
   <canvas id="celebrationCanvas"></canvas>
 
-  <div class="app-container">
+  <div class="app-scaffold">
     
-    <header>
-      <div class="app-title-box">
-        <span class="bismillah-small">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ</span>
-        <div class="app-title">📿 Islamic Tasbih</div>
+    <!-- Top Bar -->
+    <div class="top-bar">
+      <div class="app-brand">
+        <span class="bismillah-text">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ</span>
+        <div class="app-header-title">
+          <span>📿 Islamic Tasbih</span>
+          <span class="version-pill">v2.0.2</span>
+        </div>
       </div>
-      <div class="header-icons">
-        <button class="icon-btn" onclick="openHistoryModal()" title="History & Stats">📊</button>
-        <button class="icon-btn" onclick="openSettingsModal()" title="Settings">⚙️</button>
+      <div class="app-actions">
+        <button class="action-icon-btn" onclick="openModal('historyModal')" title="Daily Wird & History">📊</button>
+        <button class="action-icon-btn" onclick="openModal('themeModal')" title="Themes">🎨</button>
+        <button class="action-icon-btn" onclick="openModal('settingsModal')" title="Settings">⚙️</button>
       </div>
-    </header>
-
-    <div class="presets-container" id="presetsBar">
-      <button class="preset-chip active" onclick="selectPreset(33, this)">33 (Fatima)</button>
-      <button class="preset-chip" onclick="selectPreset(100, this)">100</button>
-      <button class="preset-chip" onclick="selectPreset(313, this)">313 (Badr)</button>
-      <button class="preset-chip" onclick="selectPreset(1000, this)">1,000</button>
-      <button class="preset-chip" onclick="selectPreset(11, this)">11</button>
-      <button class="preset-chip" onclick="selectPreset(40, this)">40</button>
-      <button class="preset-chip" onclick="selectPreset(70, this)">70</button>
-      <button class="preset-chip" onclick="selectPreset(92, this)">92</button>
-      <button class="preset-chip" onclick="selectPreset(120, this)">120</button>
-      <button class="preset-chip" onclick="selectPreset(Infinity, this)">Free (∞)</button>
-      <button class="preset-chip" onclick="promptCustomTarget(this)">+ Custom</button>
     </div>
 
-    <div class="counter-wrapper">
-      <div class="touch-overlay" id="touchOverlay" onclick="handleScreenTap(event)"></div>
-      
-      <div class="counter-ring-container" id="ringContainer">
-        <svg class="counter-svg-ring" viewBox="0 0 280 280">
-          <circle class="ring-bg" cx="140" cy="140" r="130"></circle>
-          <circle class="ring-progress" id="ringProgress" cx="140" cy="140" r="130"></circle>
+    <!-- 100% Offline PWA & iPhone Installation Bar -->
+    <div class="offline-banner">
+      <span>📴 100% Offline App</span>
+      <button class="install-pwa-btn" onclick="showInstallGuide()">📲 Add to iPhone / Home Screen</button>
+    </div>
+
+    <!-- Sunnah Target Presets Scrollable Bar -->
+    <div class="presets-scroll" id="presetScrollContainer">
+      <button class="preset-btn active" onclick="setPresetTarget(33, this)">33 (Fatima)</button>
+      <button class="preset-btn" onclick="setPresetTarget(100, this)">100</button>
+      <button class="preset-btn" onclick="setPresetTarget(313, this)">313 (Badr)</button>
+      <button class="preset-btn" onclick="setPresetTarget(1000, this)">1,000</button>
+      <button class="preset-btn" onclick="setPresetTarget(11, this)">11</button>
+      <button class="preset-btn" onclick="setPresetTarget(40, this)">40</button>
+      <button class="preset-btn" onclick="setPresetTarget(70, this)">70</button>
+      <button class="preset-btn" onclick="setPresetTarget(92, this)">92</button>
+      <button class="preset-btn" onclick="setPresetTarget(120, this)">120</button>
+      <button class="preset-btn" onclick="setPresetTarget(Infinity, this)">Free (∞)</button>
+      <button class="preset-btn" onclick="promptCustomTarget(this)">+ Custom</button>
+    </div>
+
+    <!-- Active Dhikr Title Selector -->
+    <div class="dhikr-select-bar" onclick="openModal('dhikrModal')">
+      <div>
+        <div class="dhikr-main" id="currentDhikrArabic">سُبْحَانَ اللَّهِ</div>
+        <div class="dhikr-meaning" id="currentDhikrMeaning">Glory be to Allah</div>
+      </div>
+      <div style="font-size: 13px; color: var(--gold-light);">Change ▾</div>
+    </div>
+
+    <!-- Main Counter Canvas & 3D Prayer Bead Circle -->
+    <div class="main-canvas">
+      <div class="fullscreen-touch-layer" id="fullscreenTouchLayer" onclick="handleTapArea(event)"></div>
+
+      <div class="bead-circle-3d" id="beadCircleContainer">
+        <svg class="beads-svg-overlay" viewBox="0 0 290 290">
+          <circle class="track-circle" cx="145" cy="145" r="135"></circle>
+          <circle class="progress-track" id="progressTrackRing" cx="145" cy="145" r="135"></circle>
         </svg>
 
-        <span class="dhikr-arabic" id="dhikrLabel">سُبْحَانَ اللَّهِ</span>
-        <span class="count-number" id="countDisplay">0</span>
-        <span class="target-label" id="targetDisplay">Target: 33</span>
-        <span class="progress-percent" id="percentDisplay">0%</span>
+        <div class="count-text" id="countDisplayNumber">0</div>
+        <div class="target-tag" id="targetDisplayTag">Target: 33</div>
+        <div class="percent-tag" id="percentDisplayTag">0%</div>
       </div>
     </div>
 
-    <div class="tap-hint" id="tapHintText">👆 Tap anywhere on screen to count</div>
+    <div class="hint-label" id="hintTapLabel">👆 Tap anywhere on screen to count</div>
 
-    <div class="controls-container">
-      <button class="btn-action btn-minor-action" onclick="decrementCount()" title="Minus One">−</button>
-      <button class="btn-action btn-primary-count" onclick="incrementCount()">
+    <!-- Bottom Controls -->
+    <div class="controls-bar">
+      <button class="btn-ctrl btn-ctrl-small" onclick="decrement()" title="Minus One">−</button>
+      <button class="btn-ctrl btn-count-big" onclick="increment()">
         <span>📿</span> Count +1
       </button>
-      <button class="btn-action btn-minor-action" onclick="resetCount()" title="Reset Count">🔄</button>
+      <button class="btn-ctrl btn-ctrl-small" onclick="toggleMute()" id="muteBtn" title="Sound Toggle">🔊</button>
+      <button class="btn-ctrl btn-ctrl-small" onclick="resetCounter()" title="Reset Count">🔄</button>
     </div>
 
   </div>
 
-  <!-- Settings Modal -->
-  <div class="modal-backdrop" id="settingsModal">
-    <div class="modal-content">
-      <div class="modal-header">
-        <div class="modal-title">⚙️ App Settings</div>
-        <button class="close-btn" onclick="closeModal('settingsModal')">✕</button>
+  <!-- 1. Settings Modal -->
+  <div class="modal-overlay" id="settingsModal">
+    <div class="modal-sheet">
+      <div class="modal-top">
+        <div class="modal-heading">⚙️ Settings</div>
+        <button class="modal-x" onclick="closeModal('settingsModal')">✕</button>
       </div>
 
-      <div class="setting-row">
-        <span class="setting-label">🔊 Prayer Bead Sound</span>
-        <label class="switch">
-          <input type="checkbox" id="soundToggle" checked onchange="toggleSound(this.checked)">
-          <span class="slider"></span>
+      <div class="opt-row">
+        <div>
+          <div class="opt-title">🔊 Prayer Bead Sound</div>
+          <div class="opt-desc">Synthesized wooden prayer bead click</div>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" id="soundSwitch" checked onchange="setSoundPref(this.checked)">
+          <span class="switch-slider"></span>
         </label>
       </div>
 
-      <div class="setting-row">
-        <span class="setting-label">📳 Haptic Vibrations</span>
-        <label class="switch">
-          <input type="checkbox" id="hapticToggle" checked onchange="toggleHaptics(this.checked)">
-          <span class="slider"></span>
+      <div class="opt-row">
+        <div>
+          <div class="opt-title">📳 Haptic Vibrations</div>
+          <div class="opt-desc">Multi-pulse vibration on milestone target</div>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" id="hapticSwitch" checked onchange="setHapticPref(this.checked)">
+          <span class="switch-slider"></span>
         </label>
       </div>
 
-      <div class="setting-row">
-        <span class="setting-label">📱 Full Screen Tap Mode</span>
-        <label class="switch">
-          <input type="checkbox" id="fullscreenTapToggle" checked onchange="toggleFullscreenTap(this.checked)">
-          <span class="slider"></span>
+      <div class="opt-row">
+        <div>
+          <div class="opt-title">📱 Full-Screen Tap Mode</div>
+          <div class="opt-desc">Tap anywhere on screen for effortless Dhikr</div>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" id="fullscreenSwitch" checked onchange="setFullscreenPref(this.checked)">
+          <span class="switch-slider"></span>
         </label>
       </div>
 
-      <div style="margin-top: 18px;">
-        <div style="font-size: 14px; font-weight: 700; color: var(--gold); margin-bottom: 8px;">🎨 Islamic Themes</div>
-        <div class="theme-grid">
-          <button class="theme-btn active" onclick="setTheme('theme-emerald', this)">🟢 Emerald</button>
-          <button class="theme-btn" onclick="setTheme('theme-desert', this)">🌅 Desert</button>
-          <button class="theme-btn" onclick="setTheme('theme-midnight', this)">🌌 Midnight</button>
-          <button class="theme-btn" onclick="setTheme('theme-rose', this)">🌸 Rose</button>
-          <button class="theme-btn" onclick="setTheme('theme-marble', this)">🏛️ Marble</button>
-          <button class="theme-btn" onclick="setTheme('theme-celestial', this)">✨ Celestial</button>
-          <button class="theme-btn" onclick="setTheme('theme-neon', this)">⚡ Neon</button>
+      <div style="margin-top: 20px; padding: 14px; background: rgba(0,0,0,0.3); border-radius: 14px; border: 1px solid rgba(212,175,55,0.25); text-align: center; font-size: 12px;">
+        <div style="font-weight: 800; color: var(--gold);">📿 Islamic Tasbih Counter • Version 2.0.2</div>
+        <div style="opacity: 0.85; margin: 4px 0;">100% Offline • Private & Zero Battery Engine</div>
+        <div style="color: var(--gold-light); font-size: 11px;">Built with love for the Global Ummah</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. Themes Modal -->
+  <div class="modal-overlay" id="themeModal">
+    <div class="modal-sheet">
+      <div class="modal-top">
+        <div class="modal-heading">🎨 7 Islamic Luxury Themes</div>
+        <button class="modal-x" onclick="closeModal('themeModal')">✕</button>
+      </div>
+
+      <div class="themes-palette">
+        <button class="theme-card-btn active" onclick="applyTheme('theme-emerald', this)">🟢 Emerald</button>
+        <button class="theme-card-btn" onclick="applyTheme('theme-desert', this)">🌅 Desert</button>
+        <button class="theme-card-btn" onclick="applyTheme('theme-midnight', this)">🌌 Midnight</button>
+        <button class="theme-card-btn" onclick="applyTheme('theme-rose', this)">🌸 Rose</button>
+        <button class="theme-card-btn" onclick="applyTheme('theme-marble', this)">🏛️ Marble</button>
+        <button class="theme-card-btn" onclick="applyTheme('theme-celestial', this)">✨ Celestial</button>
+        <button class="theme-card-btn" onclick="applyTheme('theme-neon', this)">⚡ Neon</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. Dhikr Selector Modal -->
+  <div class="modal-overlay" id="dhikrModal">
+    <div class="modal-sheet">
+      <div class="modal-top">
+        <div class="modal-heading">📿 Choose Your Dhikr</div>
+        <button class="modal-x" onclick="closeModal('dhikrModal')">✕</button>
+      </div>
+
+      <div class="dhikr-choice-item active" onclick="selectDhikr('سُبْحَانَ اللَّهِ', 'Glory be to Allah', this)">
+        <div>
+          <div style="font-size: 18px; font-weight: 800; color: var(--gold);">سُبْحَانَ اللَّهِ</div>
+          <div style="font-size: 12px; opacity: 0.8;">SubhanAllah • Glory be to Allah</div>
         </div>
       </div>
-
-      <div style="margin-top: 24px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.1); text-align: center; font-size: 12px; opacity: 0.8;">
-        <div>📿 Islamic Tasbih Web App • v2.0.2</div>
-        <div style="margin-top: 4px;">100% Offline • Private & Ad-Free</div>
-        <div style="margin-top: 10px;">
-          <a href="./index.html" style="color: var(--gold-light); text-decoration: none; font-weight: bold;">← Return to Download Portal</a>
+      <div class="dhikr-choice-item" onclick="selectDhikr('الْحَمْدُ لِلَّهِ', 'All praise is due to Allah', this)">
+        <div>
+          <div style="font-size: 18px; font-weight: 800; color: var(--gold);">الْحَمْدُ لِلَّهِ</div>
+          <div style="font-size: 12px; opacity: 0.8;">Alhamdulillah • All praise is due to Allah</div>
+        </div>
+      </div>
+      <div class="dhikr-choice-item" onclick="selectDhikr('اللَّهُ أَكْبَرُ', 'Allah is the Greatest', this)">
+        <div>
+          <div style="font-size: 18px; font-weight: 800; color: var(--gold);">اللَّهُ أَكْبَرُ</div>
+          <div style="font-size: 12px; opacity: 0.8;">Allahu Akbar • Allah is the Greatest</div>
+        </div>
+      </div>
+      <div class="dhikr-choice-item" onclick="selectDhikr('أَسْتَغْفِرُ اللَّهَ', 'I seek forgiveness from Allah', this)">
+        <div>
+          <div style="font-size: 18px; font-weight: 800; color: var(--gold);">أَسْتَغْفِرُ اللَّهَ</div>
+          <div style="font-size: 12px; opacity: 0.8;">Astaghfirullah • I seek forgiveness from Allah</div>
+        </div>
+      </div>
+      <div class="dhikr-choice-item" onclick="selectDhikr('لَا إِلٰهَ إِلَّا اللَّهُ', 'None has the right to be worshipped but Allah', this)">
+        <div>
+          <div style="font-size: 18px; font-weight: 800; color: var(--gold);">لَا إِلٰهَ إِلَّا اللَّهُ</div>
+          <div style="font-size: 12px; opacity: 0.8;">La ilaha illallah • There is no deity but Allah</div>
+        </div>
+      </div>
+      <div class="dhikr-choice-item" onclick="selectDhikr('اللَّهُمَّ صَلِّ عَلَىٰ مُحَمَّدٍ', 'O Allah, send blessings upon Muhammad', this)">
+        <div>
+          <div style="font-size: 18px; font-weight: 800; color: var(--gold);">اللَّهُمَّ صَلِّ عَلَىٰ مُحَمَّدٍ</div>
+          <div style="font-size: 12px; opacity: 0.8;">Salawat • Blessings upon the Prophet ﷺ</div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- History & Stats Modal -->
-  <div class="modal-backdrop" id="historyModal">
-    <div class="modal-content">
-      <div class="modal-header">
-        <div class="modal-title">📊 Daily Wird & History</div>
-        <button class="close-btn" onclick="closeModal('historyModal')">✕</button>
+  <!-- 4. Daily Wird & History Analytics Modal -->
+  <div class="modal-overlay" id="historyModal">
+    <div class="modal-sheet">
+      <div class="modal-top">
+        <div class="modal-heading">📊 Daily Wird & History</div>
+        <button class="modal-x" onclick="closeModal('historyModal')">✕</button>
       </div>
 
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px;">
-        <div style="background: rgba(255,255,255,0.06); padding: 14px; border-radius: 14px; text-align: center; border: 1px solid rgba(212,175,55,0.2);">
-          <div style="font-size: 28px; font-weight: 800; color: var(--gold);" id="todayTotalDisplay">0</div>
-          <div style="font-size: 12px; opacity: 0.85;">Today's Count</div>
+        <div style="background: rgba(255,255,255,0.06); padding: 14px; border-radius: 14px; text-align: center; border: 1px solid rgba(212,175,55,0.25);">
+          <div style="font-size: 32px; font-weight: 900; color: var(--gold);" id="historyTodayVal">0</div>
+          <div style="font-size: 12px; opacity: 0.85;">Today's Dhikr</div>
         </div>
-        <div style="background: rgba(255,255,255,0.06); padding: 14px; border-radius: 14px; text-align: center; border: 1px solid rgba(212,175,55,0.2);">
-          <div style="font-size: 28px; font-weight: 800; color: var(--gold);" id="lifetimeTotalDisplay">0</div>
+        <div style="background: rgba(255,255,255,0.06); padding: 14px; border-radius: 14px; text-align: center; border: 1px solid rgba(212,175,55,0.25);">
+          <div style="font-size: 32px; font-weight: 900; color: var(--gold);" id="historyLifetimeVal">0</div>
           <div style="font-size: 12px; opacity: 0.85;">Lifetime Total</div>
         </div>
       </div>
 
-      <div style="font-size: 13px; font-weight: 700; color: var(--gold-light); margin-bottom: 10px;">📅 7-Day Dhikr Activity:</div>
-      <div id="historyBarChart" style="display: flex; align-items: flex-end; justify-content: space-between; height: 110px; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.15);"></div>
+      <div style="font-size: 13px; font-weight: 700; color: var(--gold-light); margin-bottom: 12px;">📅 7-Day Dhikr Activity:</div>
+      <div id="historyBarGraph" style="display: flex; align-items: flex-end; justify-content: space-between; height: 120px; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.15);"></div>
 
       <div style="margin-top: 20px; text-align: center;">
-        <button onclick="clearHistory()" style="background: none; border: 1px solid rgba(255,100,100,0.4); color: #ff8888; padding: 8px 16px; border-radius: 10px; font-size: 12px; cursor: pointer;">
-          🗑️ Reset History Data
+        <button onclick="resetHistoryRecords()" style="background: none; border: 1px solid rgba(255,100,100,0.4); color: #ff8888; padding: 8px 16px; border-radius: 10px; font-size: 12px; cursor: pointer;">
+          🗑️ Clear History
         </button>
       </div>
     </div>
   </div>
 
-  <!-- Celebration Milestone Modal -->
-  <div class="modal-backdrop" id="celebrationModal">
-    <div class="modal-content celebration-box">
-      <div style="font-size: 44px; margin-bottom: 8px;">🎉</div>
-      <div class="celebration-arabic">مَا شَاءَ اللَّهُ تَبَارَكَ اللَّهُ</div>
-      <div class="celebration-msg" id="milestoneMsg">You have accomplished your target of 33 Dhikr! May Allah accept your prayers.</div>
-      <button class="btn-action btn-primary-count" style="width: 100%;" onclick="closeModal('celebrationModal')">
+  <!-- 5. iPhone / PWA Offline Install Guide Modal -->
+  <div class="modal-overlay" id="installGuideModal">
+    <div class="modal-sheet" style="text-align: center;">
+      <div class="modal-top">
+        <div class="modal-heading">📲 Install & Use 100% Offline</div>
+        <button class="modal-x" onclick="closeModal('installGuideModal')">✕</button>
+      </div>
+
+      <div style="font-size: 40px; margin-bottom: 10px;">🍏 / 🤖</div>
+      <div style="font-size: 16px; font-weight: 800; color: var(--gold); margin-bottom: 14px;">How to Install on iPhone (Safari):</div>
+
+      <div class="iphone-step">
+        <div class="step-num">1</div>
+        <div style="font-size: 13px;">Tap the <strong>Share Button</strong> (square with arrow up) at the bottom of Safari.</div>
+      </div>
+      <div class="iphone-step">
+        <div class="step-num">2</div>
+        <div style="font-size: 13px;">Scroll down and tap <strong>"Add to Home Screen"</strong> (➕).</div>
+      </div>
+      <div class="iphone-step">
+        <div class="step-num">3</div>
+        <div style="font-size: 13px;">Tap <strong>Add</strong>. It will appear with an app icon and work <strong>100% offline in Airplane Mode!</strong></div>
+      </div>
+
+      <button class="btn-ctrl btn-count-big" style="width: 100%; margin-top: 10px;" onclick="closeModal('installGuideModal')">
+        Got it!
+      </button>
+    </div>
+  </div>
+
+  <!-- 6. Target Accomplished Celebration Modal -->
+  <div class="modal-overlay" id="milestoneAccomplishedModal">
+    <div class="modal-sheet celebration-wrapper">
+      <div style="font-size: 46px; margin-bottom: 8px;">🎉</div>
+      <div class="celebration-arabic-title">مَا شَاءَ اللَّهُ تَبَارَكَ اللَّهُ</div>
+      <div class="celebration-desc" id="milestoneDoneText">You have accomplished your target of 33 Dhikr! May Allah accept your prayers.</div>
+      <button class="btn-ctrl btn-count-big" style="width: 100%;" onclick="closeModal('milestoneAccomplishedModal')">
         🤲 Continue Dhikr (Alhamdulillah)
       </button>
     </div>
   </div>
 
   <script>
+    // State
     let count = parseInt(localStorage.getItem('tasbih_count') || '0', 10);
     let target = parseInt(localStorage.getItem('tasbih_target') || '33', 10);
     let soundEnabled = localStorage.getItem('tasbih_sound') !== 'false';
     let hapticsEnabled = localStorage.getItem('tasbih_haptic') !== 'false';
     let fullscreenTap = localStorage.getItem('tasbih_fullscreen') !== 'false';
     let currentTheme = localStorage.getItem('tasbih_theme') || 'theme-emerald';
+    let currentDhikr = localStorage.getItem('tasbih_dhikr_ar') || 'سُبْحَانَ اللَّهِ';
+    let currentMeaning = localStorage.getItem('tasbih_dhikr_en') || 'Glory be to Allah';
 
+    // Service Worker PWA Offline Registration
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').then(reg => {
+          console.log('Service Worker Registered! 100% Offline Active.');
+        }).catch(err => console.log('SW registration error:', err));
+      });
+    }
+
+    // Audio Engine
     const AudioContext = window.AudioContext || window.webkitAudioContext;
     let audioCtx = null;
 
-    function playBeadSound() {
+    function playBeadClick() {
       if (!soundEnabled) return;
       try {
         if (!audioCtx) audioCtx = new AudioContext();
@@ -283,7 +450,7 @@
         const gain = audioCtx.createGain();
         osc.type = 'sine';
         osc.frequency.setValueAtTime(850, audioCtx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(120, audioCtx.currentTime + 0.028);
+        osc.frequency.exponentialRampToValueAtTime(110, audioCtx.currentTime + 0.028);
         gain.gain.setValueAtTime(0.35, audioCtx.currentTime);
         gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.028);
         osc.connect(gain);
@@ -293,7 +460,7 @@
       } catch (e) {}
     }
 
-    function triggerVibration(strong = false) {
+    function triggerHaptic(strong = false) {
       if (!hapticsEnabled || !navigator.vibrate) return;
       if (strong) {
         navigator.vibrate([180, 80, 180, 80, 200, 80, 450]);
@@ -302,114 +469,135 @@
       }
     }
 
+    // UI Updates
     function updateUI() {
-      document.getElementById('countDisplay').innerText = count;
-      document.getElementById('targetDisplay').innerText = target === Infinity ? 'Free Mode (∞)' : `Target: ${target}`;
+      document.getElementById('countDisplayNumber').innerText = count;
+      document.getElementById('targetDisplayTag').innerText = target === Infinity ? 'Free Mode (∞)' : `Target: ${target}`;
       
-      const circumference = 2 * Math.PI * 130;
-      const ring = document.getElementById('ringProgress');
+      const circumference = 2 * Math.PI * 135; // 848.2
+      const ring = document.getElementById('progressTrackRing');
       
       if (target === Infinity || target <= 0) {
         ring.style.strokeDashoffset = 0;
-        document.getElementById('percentDisplay').innerText = '∞';
+        document.getElementById('percentDisplayTag').innerText = '∞';
       } else {
         const percent = Math.min(1, count / target);
         const offset = circumference - (percent * circumference);
         ring.style.strokeDashoffset = offset;
-        document.getElementById('percentDisplay').innerText = `${Math.round(percent * 100)}%`;
+        document.getElementById('percentDisplayTag').innerText = `${Math.round(percent * 100)}%`;
       }
+
+      document.getElementById('currentDhikrArabic').innerText = currentDhikr;
+      document.getElementById('currentDhikrMeaning').innerText = currentMeaning;
 
       localStorage.setItem('tasbih_count', count.toString());
       localStorage.setItem('tasbih_target', target.toString());
     }
 
-    function triggerPulse() {
-      const ring = document.getElementById('ringContainer');
-      ring.classList.add('pulse');
-      setTimeout(() => ring.classList.remove('pulse'), 120);
+    function triggerBounce() {
+      const circle = document.getElementById('beadCircleContainer');
+      circle.classList.add('pulse');
+      setTimeout(() => circle.classList.remove('pulse'), 120);
     }
 
-    function incrementCount() {
+    function increment() {
       count++;
-      playBeadSound();
-      triggerPulse();
+      playBeadClick();
+      triggerBounce();
       recordHistory(1);
 
       if (target !== Infinity && count === target) {
-        triggerVibration(true);
+        triggerHaptic(true);
         triggerCelebration();
-        openMilestoneModal();
+        document.getElementById('milestoneDoneText').innerText = `You have accomplished your target of ${target} Dhikr! May Allah accept your prayers.`;
+        openModal('milestoneAccomplishedModal');
       } else {
-        triggerVibration(false);
+        triggerHaptic(false);
       }
       updateUI();
     }
 
-    function decrementCount() {
+    function decrement() {
       if (count > 0) {
         count--;
-        playBeadSound();
-        triggerVibration(false);
+        playBeadClick();
+        triggerHaptic(false);
         updateUI();
       }
     }
 
-    function resetCount() {
-      if (count > 0 && confirm("Reset current count to 0?")) {
+    function resetCounter() {
+      if (count > 0 && confirm("Reset count to 0?")) {
         count = 0;
-        playBeadSound();
-        triggerVibration(false);
+        playBeadClick();
+        triggerHaptic(false);
         updateUI();
       }
     }
 
-    function handleScreenTap(e) {
-      if (fullscreenTap) {
-        incrementCount();
-      }
+    function toggleMute() {
+      soundEnabled = !soundEnabled;
+      document.getElementById('soundSwitch').checked = soundEnabled;
+      document.getElementById('muteBtn').innerText = soundEnabled ? '🔊' : '🔇';
+      localStorage.setItem('tasbih_sound', soundEnabled);
     }
 
-    function selectPreset(val, el) {
+    function handleTapArea(e) {
+      if (fullscreenTap) increment();
+    }
+
+    function setPresetTarget(val, el) {
       target = val;
-      document.querySelectorAll('.preset-chip').forEach(c => c.classList.remove('active'));
+      document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
       if (el) el.classList.add('active');
-      playBeadSound();
-      triggerVibration();
+      playBeadClick();
+      triggerHaptic();
       updateUI();
     }
 
     function promptCustomTarget(el) {
       const input = prompt("Enter your custom target count (e.g. 500):", target === Infinity ? "100" : target);
       if (input && !isNaN(parseInt(input, 10)) && parseInt(input, 10) > 0) {
-        selectPreset(parseInt(input, 10), el);
+        setPresetTarget(parseInt(input, 10), el);
         el.innerText = `Custom: ${input}`;
       }
     }
 
-    function setTheme(themeClass, el) {
-      document.body.className = themeClass;
-      localStorage.setItem('tasbih_theme', themeClass);
-      document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
+    function selectDhikr(ar, en, el) {
+      currentDhikr = ar;
+      currentMeaning = en;
+      localStorage.setItem('tasbih_dhikr_ar', ar);
+      localStorage.setItem('tasbih_dhikr_en', en);
+      document.querySelectorAll('.dhikr-choice-item').forEach(i => i.classList.remove('active'));
+      if (el) el.classList.add('active');
+      updateUI();
+      closeModal('dhikrModal');
+    }
+
+    function applyTheme(themeName, el) {
+      document.body.className = themeName;
+      localStorage.setItem('tasbih_theme', themeName);
+      document.querySelectorAll('.theme-card-btn').forEach(b => b.classList.remove('active'));
       if (el) el.classList.add('active');
     }
 
-    function toggleSound(val) { soundEnabled = val; localStorage.setItem('tasbih_sound', val); }
-    function toggleHaptics(val) { hapticsEnabled = val; localStorage.setItem('tasbih_haptic', val); }
-    function toggleFullscreenTap(val) {
+    function setSoundPref(val) { soundEnabled = val; localStorage.setItem('tasbih_sound', val); document.getElementById('muteBtn').innerText = val ? '🔊' : '🔇'; }
+    function setHapticPref(val) { hapticsEnabled = val; localStorage.setItem('tasbih_haptic', val); }
+    function setFullscreenPref(val) {
       fullscreenTap = val;
       localStorage.setItem('tasbih_fullscreen', val);
-      document.getElementById('touchOverlay').style.display = val ? 'block' : 'none';
-      document.getElementById('tapHintText').innerText = val ? '👆 Tap anywhere on screen to count' : '👆 Tap the Count button below';
+      document.getElementById('fullscreenTouchLayer').style.display = val ? 'block' : 'none';
+      document.getElementById('hintTapLabel').innerText = val ? '👆 Tap anywhere on screen to count' : '👆 Tap the Count button below';
     }
 
-    function openSettingsModal() { document.getElementById('settingsModal').classList.add('show'); }
-    function openHistoryModal() { renderHistory(); document.getElementById('historyModal').classList.add('show'); }
-    function openMilestoneModal() {
-      document.getElementById('milestoneMsg').innerText = `You have accomplished your target of ${target} Dhikr! May Allah accept your prayers.`;
-      document.getElementById('celebrationModal').classList.add('show');
+    function openModal(id) {
+      if (id === 'historyModal') renderHistory();
+      document.getElementById(id).classList.add('open');
     }
-    function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+    function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+    function showInstallGuide() { openModal('installGuideModal'); }
 
+    // History Storage
     function recordHistory(inc) {
       const today = new Date().toISOString().split('T')[0];
       const history = JSON.parse(localStorage.getItem('tasbih_history') || '{}');
@@ -424,10 +612,10 @@
       let lifetime = 0;
       for (const d in history) lifetime += history[d];
       
-      document.getElementById('todayTotalDisplay').innerText = (history[today] || 0).toLocaleString();
-      document.getElementById('lifetimeTotalDisplay').innerText = lifetime.toLocaleString();
+      document.getElementById('historyTodayVal').innerText = (history[today] || 0).toLocaleString();
+      document.getElementById('historyLifetimeVal').innerText = lifetime.toLocaleString();
 
-      const container = document.getElementById('historyBarChart');
+      const container = document.getElementById('historyBarGraph');
       container.innerHTML = '';
 
       const last7Days = [];
@@ -455,13 +643,14 @@
       });
     }
 
-    function clearHistory() {
+    function resetHistoryRecords() {
       if (confirm("Clear all your Dhikr history records?")) {
         localStorage.removeItem('tasbih_history');
         renderHistory();
       }
     }
 
+    // Celebration Confetti Explosion
     function triggerCelebration() {
       const canvas = document.getElementById('celebrationCanvas');
       const ctx = canvas.getContext('2d');
@@ -472,7 +661,7 @@
       const particles = [];
       const colors = ['#D4AF37', '#2E7D32', '#00E5FF', '#FF4081', '#FFD700', '#FFFFFF'];
 
-      for (let i = 0; i < 110; i++) {
+      for (let i = 0; i < 120; i++) {
         particles.push({
           x: canvas.width / 2,
           y: canvas.height * 0.45,
@@ -517,11 +706,13 @@
       animate();
     }
 
+    // Init
     document.body.className = currentTheme;
-    document.getElementById('soundToggle').checked = soundEnabled;
-    document.getElementById('hapticToggle').checked = hapticsEnabled;
-    document.getElementById('fullscreenTapToggle').checked = fullscreenTap;
-    toggleFullscreenTap(fullscreenTap);
+    document.getElementById('soundSwitch').checked = soundEnabled;
+    document.getElementById('hapticSwitch').checked = hapticsEnabled;
+    document.getElementById('fullscreenSwitch').checked = fullscreenTap;
+    document.getElementById('muteBtn').innerText = soundEnabled ? '🔊' : '🔇';
+    setFullscreenPref(fullscreenTap);
     updateUI();
   </script>
 </body>

@@ -1,0 +1,24 @@
+{
+  "name": "Islamic Tasbih Counter",
+  "short_name": "Tasbih",
+  "description": "Pure, ad-free, 100% offline digital prayer counter for daily Dhikr and spiritual peace.",
+  "start_url": "./app.html",
+  "display": "standalone",
+  "background_color": "#04120B",
+  "theme_color": "#1B5E20",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "https://api.qrserver.com/v1/create-qr-code/?size=192x192&data=TasbihApp&color=D4AF37&bgcolor=0D2818",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://api.qrserver.com/v1/create-qr-code/?size=512x512&data=TasbihApp&color=D4AF37&bgcolor=0D2818",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
